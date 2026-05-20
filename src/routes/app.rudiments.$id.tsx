@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getRudiment, RUDIMENT_CATEGORIES } from "@/lib/rudiments";
+import { getRudiment, RUDIMENT_CATEGORIES, type Rudiment } from "@/lib/rudiments";
 import { Metronome } from "@/components/Metronome";
 import { ArrowLeft } from "lucide-react";
 
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/app/rudiments/$id")({
 });
 
 function RudimentDetail() {
-  const { rudiment } = Route.useLoaderData();
+  const { rudiment } = Route.useLoaderData() as { rudiment: Rudiment };
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       <Link to="/app/rudiments" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
