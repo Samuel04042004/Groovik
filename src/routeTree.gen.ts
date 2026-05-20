@@ -10,12 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppRudimentsRouteImport } from './routes/app.rudiments'
+import { Route as AppMetronomeRouteImport } from './routes/app.metronome'
+import { Route as AppRudimentsIdRouteImport } from './routes/app.rudiments.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -23,39 +34,110 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRudimentsRoute = AppRudimentsRouteImport.update({
+  id: '/rudiments',
+  path: '/rudiments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMetronomeRoute = AppMetronomeRouteImport.update({
+  id: '/metronome',
+  path: '/metronome',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRudimentsIdRoute = AppRudimentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppRudimentsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/app/metronome': typeof AppMetronomeRoute
+  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/': typeof AppIndexRoute
+  '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/app/metronome': typeof AppMetronomeRoute
+  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app': typeof AppIndexRoute
+  '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/app/metronome': typeof AppMetronomeRoute
+  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/': typeof AppIndexRoute
+  '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/reset-password'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/app/metronome'
+    | '/app/rudiments'
+    | '/app/'
+    | '/app/rudiments/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/reset-password'
-  id: '__root__' | '/' | '/auth' | '/reset-password'
+  to:
+    | '/'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/app/metronome'
+    | '/app/rudiments'
+    | '/app'
+    | '/app/rudiments/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/app/metronome'
+    | '/app/rudiments'
+    | '/app/'
+    | '/app/rudiments/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
+  OnboardingRoute: typeof OnboardingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
@@ -68,11 +150,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -82,12 +178,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rudiments': {
+      id: '/app/rudiments'
+      path: '/rudiments'
+      fullPath: '/app/rudiments'
+      preLoaderRoute: typeof AppRudimentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/metronome': {
+      id: '/app/metronome'
+      path: '/metronome'
+      fullPath: '/app/metronome'
+      preLoaderRoute: typeof AppMetronomeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rudiments/$id': {
+      id: '/app/rudiments/$id'
+      path: '/$id'
+      fullPath: '/app/rudiments/$id'
+      preLoaderRoute: typeof AppRudimentsIdRouteImport
+      parentRoute: typeof AppRudimentsRoute
+    }
   }
 }
 
+interface AppRudimentsRouteChildren {
+  AppRudimentsIdRoute: typeof AppRudimentsIdRoute
+}
+
+const AppRudimentsRouteChildren: AppRudimentsRouteChildren = {
+  AppRudimentsIdRoute: AppRudimentsIdRoute,
+}
+
+const AppRudimentsRouteWithChildren = AppRudimentsRoute._addFileChildren(
+  AppRudimentsRouteChildren,
+)
+
+interface AppRouteChildren {
+  AppMetronomeRoute: typeof AppMetronomeRoute
+  AppRudimentsRoute: typeof AppRudimentsRouteWithChildren
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppMetronomeRoute: AppMetronomeRoute,
+  AppRudimentsRoute: AppRudimentsRouteWithChildren,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
+  OnboardingRoute: OnboardingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
