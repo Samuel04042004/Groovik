@@ -15,8 +15,13 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppSpeedRouteImport } from './routes/app.speed'
 import { Route as AppRudimentsRouteImport } from './routes/app.rudiments'
+import { Route as AppRhythmsRouteImport } from './routes/app.rhythms'
+import { Route as AppPracticeRouteImport } from './routes/app.practice'
+import { Route as AppNotationRouteImport } from './routes/app.notation'
 import { Route as AppMetronomeRouteImport } from './routes/app.metronome'
+import { Route as AppCoordinationRouteImport } from './routes/app.coordination'
 import { Route as AppRudimentsIdRouteImport } from './routes/app.rudiments.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -49,14 +54,39 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSpeedRoute = AppSpeedRouteImport.update({
+  id: '/speed',
+  path: '/speed',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppRudimentsRoute = AppRudimentsRouteImport.update({
   id: '/rudiments',
   path: '/rudiments',
   getParentRoute: () => AppRoute,
 } as any)
+const AppRhythmsRoute = AppRhythmsRouteImport.update({
+  id: '/rhythms',
+  path: '/rhythms',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPracticeRoute = AppPracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotationRoute = AppNotationRouteImport.update({
+  id: '/notation',
+  path: '/notation',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMetronomeRoute = AppMetronomeRouteImport.update({
   id: '/metronome',
   path: '/metronome',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCoordinationRoute = AppCoordinationRouteImport.update({
+  id: '/coordination',
+  path: '/coordination',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRudimentsIdRoute = AppRudimentsIdRouteImport.update({
@@ -71,8 +101,13 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/app/coordination': typeof AppCoordinationRoute
   '/app/metronome': typeof AppMetronomeRoute
+  '/app/notation': typeof AppNotationRoute
+  '/app/practice': typeof AppPracticeRoute
+  '/app/rhythms': typeof AppRhythmsRoute
   '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/speed': typeof AppSpeedRoute
   '/app/': typeof AppIndexRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
@@ -81,8 +116,13 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/app/coordination': typeof AppCoordinationRoute
   '/app/metronome': typeof AppMetronomeRoute
+  '/app/notation': typeof AppNotationRoute
+  '/app/practice': typeof AppPracticeRoute
+  '/app/rhythms': typeof AppRhythmsRoute
   '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/speed': typeof AppSpeedRoute
   '/app': typeof AppIndexRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
@@ -93,8 +133,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/app/coordination': typeof AppCoordinationRoute
   '/app/metronome': typeof AppMetronomeRoute
+  '/app/notation': typeof AppNotationRoute
+  '/app/practice': typeof AppPracticeRoute
+  '/app/rhythms': typeof AppRhythmsRoute
   '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/speed': typeof AppSpeedRoute
   '/app/': typeof AppIndexRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
@@ -106,8 +151,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/reset-password'
+    | '/app/coordination'
     | '/app/metronome'
+    | '/app/notation'
+    | '/app/practice'
+    | '/app/rhythms'
     | '/app/rudiments'
+    | '/app/speed'
     | '/app/'
     | '/app/rudiments/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -116,8 +166,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/reset-password'
+    | '/app/coordination'
     | '/app/metronome'
+    | '/app/notation'
+    | '/app/practice'
+    | '/app/rhythms'
     | '/app/rudiments'
+    | '/app/speed'
     | '/app'
     | '/app/rudiments/$id'
   id:
@@ -127,8 +182,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/reset-password'
+    | '/app/coordination'
     | '/app/metronome'
+    | '/app/notation'
+    | '/app/practice'
+    | '/app/rhythms'
     | '/app/rudiments'
+    | '/app/speed'
     | '/app/'
     | '/app/rudiments/$id'
   fileRoutesById: FileRoutesById
@@ -185,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/speed': {
+      id: '/app/speed'
+      path: '/speed'
+      fullPath: '/app/speed'
+      preLoaderRoute: typeof AppSpeedRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/rudiments': {
       id: '/app/rudiments'
       path: '/rudiments'
@@ -192,11 +259,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRudimentsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/rhythms': {
+      id: '/app/rhythms'
+      path: '/rhythms'
+      fullPath: '/app/rhythms'
+      preLoaderRoute: typeof AppRhythmsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/practice': {
+      id: '/app/practice'
+      path: '/practice'
+      fullPath: '/app/practice'
+      preLoaderRoute: typeof AppPracticeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/notation': {
+      id: '/app/notation'
+      path: '/notation'
+      fullPath: '/app/notation'
+      preLoaderRoute: typeof AppNotationRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/metronome': {
       id: '/app/metronome'
       path: '/metronome'
       fullPath: '/app/metronome'
       preLoaderRoute: typeof AppMetronomeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/coordination': {
+      id: '/app/coordination'
+      path: '/coordination'
+      fullPath: '/app/coordination'
+      preLoaderRoute: typeof AppCoordinationRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/rudiments/$id': {
@@ -222,14 +317,24 @@ const AppRudimentsRouteWithChildren = AppRudimentsRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppCoordinationRoute: typeof AppCoordinationRoute
   AppMetronomeRoute: typeof AppMetronomeRoute
+  AppNotationRoute: typeof AppNotationRoute
+  AppPracticeRoute: typeof AppPracticeRoute
+  AppRhythmsRoute: typeof AppRhythmsRoute
   AppRudimentsRoute: typeof AppRudimentsRouteWithChildren
+  AppSpeedRoute: typeof AppSpeedRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCoordinationRoute: AppCoordinationRoute,
   AppMetronomeRoute: AppMetronomeRoute,
+  AppNotationRoute: AppNotationRoute,
+  AppPracticeRoute: AppPracticeRoute,
+  AppRhythmsRoute: AppRhythmsRoute,
   AppRudimentsRoute: AppRudimentsRouteWithChildren,
+  AppSpeedRoute: AppSpeedRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -245,3 +350,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
