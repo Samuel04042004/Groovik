@@ -9,38 +9,228 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppSpeedRouteImport } from './routes/app.speed'
+import { Route as AppRudimentsRouteImport } from './routes/app.rudiments'
+import { Route as AppRhythmsRouteImport } from './routes/app.rhythms'
+import { Route as AppPracticeRouteImport } from './routes/app.practice'
+import { Route as AppNotationRouteImport } from './routes/app.notation'
+import { Route as AppMetronomeRouteImport } from './routes/app.metronome'
+import { Route as AppCoordinationRouteImport } from './routes/app.coordination'
+import { Route as AppRudimentsIdRouteImport } from './routes/app.rudiments.$id'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSpeedRoute = AppSpeedRouteImport.update({
+  id: '/speed',
+  path: '/speed',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRudimentsRoute = AppRudimentsRouteImport.update({
+  id: '/rudiments',
+  path: '/rudiments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRhythmsRoute = AppRhythmsRouteImport.update({
+  id: '/rhythms',
+  path: '/rhythms',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPracticeRoute = AppPracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotationRoute = AppNotationRouteImport.update({
+  id: '/notation',
+  path: '/notation',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMetronomeRoute = AppMetronomeRouteImport.update({
+  id: '/metronome',
+  path: '/metronome',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCoordinationRoute = AppCoordinationRouteImport.update({
+  id: '/coordination',
+  path: '/coordination',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRudimentsIdRoute = AppRudimentsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppRudimentsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/onboarding': typeof OnboardingRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/app/coordination': typeof AppCoordinationRoute
+  '/app/metronome': typeof AppMetronomeRoute
+  '/app/notation': typeof AppNotationRoute
+  '/app/practice': typeof AppPracticeRoute
+  '/app/rhythms': typeof AppRhythmsRoute
+  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/speed': typeof AppSpeedRoute
+  '/app/': typeof AppIndexRoute
+  '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/onboarding': typeof OnboardingRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/app/coordination': typeof AppCoordinationRoute
+  '/app/metronome': typeof AppMetronomeRoute
+  '/app/notation': typeof AppNotationRoute
+  '/app/practice': typeof AppPracticeRoute
+  '/app/rhythms': typeof AppRhythmsRoute
+  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/speed': typeof AppSpeedRoute
+  '/app': typeof AppIndexRoute
+  '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/onboarding': typeof OnboardingRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/app/coordination': typeof AppCoordinationRoute
+  '/app/metronome': typeof AppMetronomeRoute
+  '/app/notation': typeof AppNotationRoute
+  '/app/practice': typeof AppPracticeRoute
+  '/app/rhythms': typeof AppRhythmsRoute
+  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/speed': typeof AppSpeedRoute
+  '/app/': typeof AppIndexRoute
+  '/app/rudiments/$id': typeof AppRudimentsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/app/coordination'
+    | '/app/metronome'
+    | '/app/notation'
+    | '/app/practice'
+    | '/app/rhythms'
+    | '/app/rudiments'
+    | '/app/speed'
+    | '/app/'
+    | '/app/rudiments/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/app/coordination'
+    | '/app/metronome'
+    | '/app/notation'
+    | '/app/practice'
+    | '/app/rhythms'
+    | '/app/rudiments'
+    | '/app/speed'
+    | '/app'
+    | '/app/rudiments/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/onboarding'
+    | '/reset-password'
+    | '/app/coordination'
+    | '/app/metronome'
+    | '/app/notation'
+    | '/app/practice'
+    | '/app/rhythms'
+    | '/app/rudiments'
+    | '/app/speed'
+    | '/app/'
+    | '/app/rudiments/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  OnboardingRoute: typeof OnboardingRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +238,115 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/speed': {
+      id: '/app/speed'
+      path: '/speed'
+      fullPath: '/app/speed'
+      preLoaderRoute: typeof AppSpeedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rudiments': {
+      id: '/app/rudiments'
+      path: '/rudiments'
+      fullPath: '/app/rudiments'
+      preLoaderRoute: typeof AppRudimentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rhythms': {
+      id: '/app/rhythms'
+      path: '/rhythms'
+      fullPath: '/app/rhythms'
+      preLoaderRoute: typeof AppRhythmsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/practice': {
+      id: '/app/practice'
+      path: '/practice'
+      fullPath: '/app/practice'
+      preLoaderRoute: typeof AppPracticeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/notation': {
+      id: '/app/notation'
+      path: '/notation'
+      fullPath: '/app/notation'
+      preLoaderRoute: typeof AppNotationRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/metronome': {
+      id: '/app/metronome'
+      path: '/metronome'
+      fullPath: '/app/metronome'
+      preLoaderRoute: typeof AppMetronomeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/coordination': {
+      id: '/app/coordination'
+      path: '/coordination'
+      fullPath: '/app/coordination'
+      preLoaderRoute: typeof AppCoordinationRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rudiments/$id': {
+      id: '/app/rudiments/$id'
+      path: '/$id'
+      fullPath: '/app/rudiments/$id'
+      preLoaderRoute: typeof AppRudimentsIdRouteImport
+      parentRoute: typeof AppRudimentsRoute
+    }
   }
 }
 
+interface AppRudimentsRouteChildren {
+  AppRudimentsIdRoute: typeof AppRudimentsIdRoute
+}
+
+const AppRudimentsRouteChildren: AppRudimentsRouteChildren = {
+  AppRudimentsIdRoute: AppRudimentsIdRoute,
+}
+
+const AppRudimentsRouteWithChildren = AppRudimentsRoute._addFileChildren(
+  AppRudimentsRouteChildren,
+)
+
+interface AppRouteChildren {
+  AppCoordinationRoute: typeof AppCoordinationRoute
+  AppMetronomeRoute: typeof AppMetronomeRoute
+  AppNotationRoute: typeof AppNotationRoute
+  AppPracticeRoute: typeof AppPracticeRoute
+  AppRhythmsRoute: typeof AppRhythmsRoute
+  AppRudimentsRoute: typeof AppRudimentsRouteWithChildren
+  AppSpeedRoute: typeof AppSpeedRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppCoordinationRoute: AppCoordinationRoute,
+  AppMetronomeRoute: AppMetronomeRoute,
+  AppNotationRoute: AppNotationRoute,
+  AppPracticeRoute: AppPracticeRoute,
+  AppRhythmsRoute: AppRhythmsRoute,
+  AppRudimentsRoute: AppRudimentsRouteWithChildren,
+  AppSpeedRoute: AppSpeedRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  AuthRoute: AuthRoute,
+  OnboardingRoute: OnboardingRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
