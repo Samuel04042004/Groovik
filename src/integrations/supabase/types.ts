@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      favorites: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      practice_sessions: {
+        Row: {
+          accuracy: number | null
+          bpm: number | null
+          created_at: string
+          duration_seconds: number
+          exercise_id: string | null
+          exercise_type: string
+          id: string
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          accuracy?: number | null
+          bpm?: number | null
+          created_at?: string
+          duration_seconds?: number
+          exercise_id?: string | null
+          exercise_type: string
+          id?: string
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          accuracy?: number | null
+          bpm?: number | null
+          created_at?: string
+          duration_seconds?: number
+          exercise_id?: string | null
+          exercise_type?: string
+          id?: string
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          last_practice_at: string | null
+          level: number
+          onboarded: boolean
+          skill_level: string | null
+          streak_days: number
+          theme: string
+          updated_at: string
+          xp: number
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          last_practice_at?: string | null
+          level?: number
+          onboarded?: boolean
+          skill_level?: string | null
+          streak_days?: number
+          theme?: string
+          updated_at?: string
+          xp?: number
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          last_practice_at?: string | null
+          level?: number
+          onboarded?: boolean
+          skill_level?: string | null
+          streak_days?: number
+          theme?: string
+          updated_at?: string
+          xp?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
