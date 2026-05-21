@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 import {
-  LayoutDashboard, Activity, Music2, FileMusic, Hand, Gauge, Target, LogOut, Flame, Zap,
+  LayoutDashboard, Activity, Music2, FileMusic, Hand, Gauge, Target, LogOut, Flame, Zap, Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ const NAV = [
   { to: "/app/coordination", label: "Coordenação", icon: Hand },
   { to: "/app/speed", label: "Velocidade", icon: Gauge },
   { to: "/app/practice", label: "Prática Livre", icon: Target },
+  { to: "/app/elite", label: "Drum Elite", icon: Crown, vip: true },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -64,6 +65,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const active = item.exact
               ? loc.pathname === item.to
               : loc.pathname === item.to || loc.pathname.startsWith(item.to + "/");
+            const isVip = (item as any).vip;
             return (
               <Link
                 key={item.to}
@@ -71,12 +73,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition",
                   active
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    ? isVip
+                      ? "bg-elite-gold/15 text-elite-gold"
+                      : "bg-primary/15 text-primary"
+                    : isVip
+                      ? "text-elite-gold/80 hover:bg-elite-gold/10 hover:text-elite-gold"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span className="hidden lg:inline">{item.label}</span>
+                {isVip && !profile?.is_premium && (
+                  <span className="hidden lg:inline ml-auto text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-elite-gold/20 text-elite-gold">VIP</span>
+                )}
               </Link>
             );
           })}

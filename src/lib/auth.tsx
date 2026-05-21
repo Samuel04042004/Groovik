@@ -12,6 +12,8 @@ type Profile = {
   streak_days: number;
   onboarded: boolean;
   theme: string;
+  is_premium: boolean;
+  premium_since: string | null;
 };
 
 type AuthCtx = {
