@@ -135,12 +135,21 @@
 .bg-gradient-hero { background-image: var(--gradient-hero); }
 .bg-gradient-primary { background-image: var(--gradient-primary); }
 .bg-gradient-secondary { background-image: var(--gradient-secondary); }
+.bg-gradient-gold { background-image: var(--gradient-gold); }
+.bg-gradient-elite { background-image: var(--gradient-elite); }
 .shadow-glow-orange { box-shadow: var(--shadow-glow-orange); }
 .shadow-glow-blue { box-shadow: var(--shadow-glow-blue); }
+.shadow-glow-gold { box-shadow: var(--shadow-glow-gold); }
 .shadow-card { box-shadow: var(--shadow-card); }
 
 .text-gradient {
   background: linear-gradient(135deg, oklch(0.78 0.18 50), oklch(0.68 0.18 250));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-gold {
+  background: var(--gradient-gold);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
