@@ -77,9 +77,11 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_premium: boolean
           last_practice_at: string | null
           level: number
           onboarded: boolean
+          premium_since: string | null
           skill_level: string | null
           streak_days: number
           theme: string
@@ -91,9 +93,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id: string
+          is_premium?: boolean
           last_practice_at?: string | null
           level?: number
           onboarded?: boolean
+          premium_since?: string | null
           skill_level?: string | null
           streak_days?: number
           theme?: string
@@ -105,9 +109,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_premium?: boolean
           last_practice_at?: string | null
           level?: number
           onboarded?: boolean
+          premium_since?: string | null
           skill_level?: string | null
           streak_days?: number
           theme?: string

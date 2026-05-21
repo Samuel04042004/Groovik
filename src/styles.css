@@ -32,6 +32,8 @@
   --color-right-hand: var(--right-hand);
   --color-left-hand: var(--left-hand);
   --color-success: var(--success);
+  --color-elite-gold: var(--elite-gold);
+  --color-elite-foreground: var(--elite-foreground);
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
@@ -60,14 +62,19 @@
   --right-hand: oklch(0.72 0.19 45);       /* D = orange */
   --left-hand: oklch(0.62 0.18 250);       /* E = blue */
   --success: oklch(0.72 0.18 155);
+  --elite-gold: oklch(0.82 0.16 85);
+  --elite-foreground: oklch(0.18 0.04 60);
 
   --gradient-hero: radial-gradient(circle at 20% 20%, oklch(0.72 0.19 45 / 0.25), transparent 50%),
                    radial-gradient(circle at 80% 80%, oklch(0.62 0.18 250 / 0.25), transparent 55%),
                    linear-gradient(180deg, oklch(0.18 0.015 260), oklch(0.14 0.015 260));
   --gradient-primary: linear-gradient(135deg, oklch(0.75 0.2 50), oklch(0.65 0.22 30));
   --gradient-secondary: linear-gradient(135deg, oklch(0.7 0.2 260), oklch(0.55 0.2 240));
+  --gradient-gold: linear-gradient(135deg, oklch(0.88 0.15 90), oklch(0.72 0.17 70));
+  --gradient-elite: linear-gradient(135deg, oklch(0.22 0.03 60), oklch(0.18 0.02 280));
   --shadow-glow-orange: 0 0 40px oklch(0.72 0.19 45 / 0.55);
   --shadow-glow-blue: 0 0 40px oklch(0.62 0.18 250 / 0.55);
+  --shadow-glow-gold: 0 0 50px oklch(0.82 0.16 85 / 0.35);
   --shadow-card: 0 10px 40px -10px oklch(0 0 0 / 0.5);
 }
 
@@ -128,12 +135,21 @@
 .bg-gradient-hero { background-image: var(--gradient-hero); }
 .bg-gradient-primary { background-image: var(--gradient-primary); }
 .bg-gradient-secondary { background-image: var(--gradient-secondary); }
+.bg-gradient-gold { background-image: var(--gradient-gold); }
+.bg-gradient-elite { background-image: var(--gradient-elite); }
 .shadow-glow-orange { box-shadow: var(--shadow-glow-orange); }
 .shadow-glow-blue { box-shadow: var(--shadow-glow-blue); }
+.shadow-glow-gold { box-shadow: var(--shadow-glow-gold); }
 .shadow-card { box-shadow: var(--shadow-card); }
 
 .text-gradient {
   background: linear-gradient(135deg, oklch(0.78 0.18 50), oklch(0.68 0.18 250));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-gold {
+  background: var(--gradient-gold);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
