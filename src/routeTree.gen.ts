@@ -16,21 +16,14 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppSpeedRouteImport } from './routes/app.speed'
-import { Route as AppRudimentsRouteImport } from './routes/app.rudiments'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppRhythmsRouteImport } from './routes/app.rhythms'
 import { Route as AppPracticeRouteImport } from './routes/app.practice'
 import { Route as AppNotationRouteImport } from './routes/app.notation'
 import { Route as AppMetronomeRouteImport } from './routes/app.metronome'
-import { Route as AppEliteRouteImport } from './routes/app.elite'
 import { Route as AppCoordinationRouteImport } from './routes/app.coordination'
-import { Route as AppEliteIndexRouteImport } from './routes/app.elite.index'
+import { Route as AppRudimentsIndexRouteImport } from './routes/app.rudiments.index'
 import { Route as AppRudimentsIdRouteImport } from './routes/app.rudiments.$id'
-import { Route as AppEliteStoresRouteImport } from './routes/app.elite.stores'
-import { Route as AppElitePurchaseRouteImport } from './routes/app.elite.purchase'
-import { Route as AppEliteProductsRouteImport } from './routes/app.elite.products'
-import { Route as AppEliteGospelRouteImport } from './routes/app.elite.gospel'
-import { Route as AppEliteExercisesRouteImport } from './routes/app.elite.exercises'
-import { Route as AppEliteCoursesRouteImport } from './routes/app.elite.courses'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -67,9 +60,9 @@ const AppSpeedRoute = AppSpeedRouteImport.update({
   path: '/speed',
   getParentRoute: () => AppRoute,
 } as any)
-const AppRudimentsRoute = AppRudimentsRouteImport.update({
-  id: '/rudiments',
-  path: '/rudiments',
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRhythmsRoute = AppRhythmsRouteImport.update({
@@ -92,55 +85,20 @@ const AppMetronomeRoute = AppMetronomeRouteImport.update({
   path: '/metronome',
   getParentRoute: () => AppRoute,
 } as any)
-const AppEliteRoute = AppEliteRouteImport.update({
-  id: '/elite',
-  path: '/elite',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppCoordinationRoute = AppCoordinationRouteImport.update({
   id: '/coordination',
   path: '/coordination',
   getParentRoute: () => AppRoute,
 } as any)
-const AppEliteIndexRoute = AppEliteIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppEliteRoute,
+const AppRudimentsIndexRoute = AppRudimentsIndexRouteImport.update({
+  id: '/rudiments/',
+  path: '/rudiments/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppRudimentsIdRoute = AppRudimentsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppRudimentsRoute,
-} as any)
-const AppEliteStoresRoute = AppEliteStoresRouteImport.update({
-  id: '/stores',
-  path: '/stores',
-  getParentRoute: () => AppEliteRoute,
-} as any)
-const AppElitePurchaseRoute = AppElitePurchaseRouteImport.update({
-  id: '/purchase',
-  path: '/purchase',
-  getParentRoute: () => AppEliteRoute,
-} as any)
-const AppEliteProductsRoute = AppEliteProductsRouteImport.update({
-  id: '/products',
-  path: '/products',
-  getParentRoute: () => AppEliteRoute,
-} as any)
-const AppEliteGospelRoute = AppEliteGospelRouteImport.update({
-  id: '/gospel',
-  path: '/gospel',
-  getParentRoute: () => AppEliteRoute,
-} as any)
-const AppEliteExercisesRoute = AppEliteExercisesRouteImport.update({
-  id: '/exercises',
-  path: '/exercises',
-  getParentRoute: () => AppEliteRoute,
-} as any)
-const AppEliteCoursesRoute = AppEliteCoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
-  getParentRoute: () => AppEliteRoute,
+  id: '/rudiments/$id',
+  path: '/rudiments/$id',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -150,22 +108,15 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app/coordination': typeof AppCoordinationRoute
-  '/app/elite': typeof AppEliteRouteWithChildren
   '/app/metronome': typeof AppMetronomeRoute
   '/app/notation': typeof AppNotationRoute
   '/app/practice': typeof AppPracticeRoute
   '/app/rhythms': typeof AppRhythmsRoute
-  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
   '/app/': typeof AppIndexRoute
-  '/app/elite/courses': typeof AppEliteCoursesRoute
-  '/app/elite/exercises': typeof AppEliteExercisesRoute
-  '/app/elite/gospel': typeof AppEliteGospelRoute
-  '/app/elite/products': typeof AppEliteProductsRoute
-  '/app/elite/purchase': typeof AppElitePurchaseRoute
-  '/app/elite/stores': typeof AppEliteStoresRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
-  '/app/elite/': typeof AppEliteIndexRoute
+  '/app/rudiments/': typeof AppRudimentsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -177,17 +128,11 @@ export interface FileRoutesByTo {
   '/app/notation': typeof AppNotationRoute
   '/app/practice': typeof AppPracticeRoute
   '/app/rhythms': typeof AppRhythmsRoute
-  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
   '/app': typeof AppIndexRoute
-  '/app/elite/courses': typeof AppEliteCoursesRoute
-  '/app/elite/exercises': typeof AppEliteExercisesRoute
-  '/app/elite/gospel': typeof AppEliteGospelRoute
-  '/app/elite/products': typeof AppEliteProductsRoute
-  '/app/elite/purchase': typeof AppElitePurchaseRoute
-  '/app/elite/stores': typeof AppEliteStoresRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
-  '/app/elite': typeof AppEliteIndexRoute
+  '/app/rudiments': typeof AppRudimentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -197,22 +142,15 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/app/coordination': typeof AppCoordinationRoute
-  '/app/elite': typeof AppEliteRouteWithChildren
   '/app/metronome': typeof AppMetronomeRoute
   '/app/notation': typeof AppNotationRoute
   '/app/practice': typeof AppPracticeRoute
   '/app/rhythms': typeof AppRhythmsRoute
-  '/app/rudiments': typeof AppRudimentsRouteWithChildren
+  '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
   '/app/': typeof AppIndexRoute
-  '/app/elite/courses': typeof AppEliteCoursesRoute
-  '/app/elite/exercises': typeof AppEliteExercisesRoute
-  '/app/elite/gospel': typeof AppEliteGospelRoute
-  '/app/elite/products': typeof AppEliteProductsRoute
-  '/app/elite/purchase': typeof AppElitePurchaseRoute
-  '/app/elite/stores': typeof AppEliteStoresRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
-  '/app/elite/': typeof AppEliteIndexRoute
+  '/app/rudiments/': typeof AppRudimentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -223,22 +161,15 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/reset-password'
     | '/app/coordination'
-    | '/app/elite'
     | '/app/metronome'
     | '/app/notation'
     | '/app/practice'
     | '/app/rhythms'
-    | '/app/rudiments'
+    | '/app/settings'
     | '/app/speed'
     | '/app/'
-    | '/app/elite/courses'
-    | '/app/elite/exercises'
-    | '/app/elite/gospel'
-    | '/app/elite/products'
-    | '/app/elite/purchase'
-    | '/app/elite/stores'
     | '/app/rudiments/$id'
-    | '/app/elite/'
+    | '/app/rudiments/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -250,17 +181,11 @@ export interface FileRouteTypes {
     | '/app/notation'
     | '/app/practice'
     | '/app/rhythms'
-    | '/app/rudiments'
+    | '/app/settings'
     | '/app/speed'
     | '/app'
-    | '/app/elite/courses'
-    | '/app/elite/exercises'
-    | '/app/elite/gospel'
-    | '/app/elite/products'
-    | '/app/elite/purchase'
-    | '/app/elite/stores'
     | '/app/rudiments/$id'
-    | '/app/elite'
+    | '/app/rudiments'
   id:
     | '__root__'
     | '/'
@@ -269,22 +194,15 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/reset-password'
     | '/app/coordination'
-    | '/app/elite'
     | '/app/metronome'
     | '/app/notation'
     | '/app/practice'
     | '/app/rhythms'
-    | '/app/rudiments'
+    | '/app/settings'
     | '/app/speed'
     | '/app/'
-    | '/app/elite/courses'
-    | '/app/elite/exercises'
-    | '/app/elite/gospel'
-    | '/app/elite/products'
-    | '/app/elite/purchase'
-    | '/app/elite/stores'
     | '/app/rudiments/$id'
-    | '/app/elite/'
+    | '/app/rudiments/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -346,11 +264,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSpeedRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/rudiments': {
-      id: '/app/rudiments'
-      path: '/rudiments'
-      fullPath: '/app/rudiments'
-      preLoaderRoute: typeof AppRudimentsRouteImport
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/rhythms': {
@@ -381,13 +299,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMetronomeRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/elite': {
-      id: '/app/elite'
-      path: '/elite'
-      fullPath: '/app/elite'
-      preLoaderRoute: typeof AppEliteRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/coordination': {
       id: '/app/coordination'
       path: '/coordination'
@@ -395,123 +306,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCoordinationRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/elite/': {
-      id: '/app/elite/'
-      path: '/'
-      fullPath: '/app/elite/'
-      preLoaderRoute: typeof AppEliteIndexRouteImport
-      parentRoute: typeof AppEliteRoute
+    '/app/rudiments/': {
+      id: '/app/rudiments/'
+      path: '/rudiments'
+      fullPath: '/app/rudiments/'
+      preLoaderRoute: typeof AppRudimentsIndexRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/rudiments/$id': {
       id: '/app/rudiments/$id'
-      path: '/$id'
+      path: '/rudiments/$id'
       fullPath: '/app/rudiments/$id'
       preLoaderRoute: typeof AppRudimentsIdRouteImport
-      parentRoute: typeof AppRudimentsRoute
-    }
-    '/app/elite/stores': {
-      id: '/app/elite/stores'
-      path: '/stores'
-      fullPath: '/app/elite/stores'
-      preLoaderRoute: typeof AppEliteStoresRouteImport
-      parentRoute: typeof AppEliteRoute
-    }
-    '/app/elite/purchase': {
-      id: '/app/elite/purchase'
-      path: '/purchase'
-      fullPath: '/app/elite/purchase'
-      preLoaderRoute: typeof AppElitePurchaseRouteImport
-      parentRoute: typeof AppEliteRoute
-    }
-    '/app/elite/products': {
-      id: '/app/elite/products'
-      path: '/products'
-      fullPath: '/app/elite/products'
-      preLoaderRoute: typeof AppEliteProductsRouteImport
-      parentRoute: typeof AppEliteRoute
-    }
-    '/app/elite/gospel': {
-      id: '/app/elite/gospel'
-      path: '/gospel'
-      fullPath: '/app/elite/gospel'
-      preLoaderRoute: typeof AppEliteGospelRouteImport
-      parentRoute: typeof AppEliteRoute
-    }
-    '/app/elite/exercises': {
-      id: '/app/elite/exercises'
-      path: '/exercises'
-      fullPath: '/app/elite/exercises'
-      preLoaderRoute: typeof AppEliteExercisesRouteImport
-      parentRoute: typeof AppEliteRoute
-    }
-    '/app/elite/courses': {
-      id: '/app/elite/courses'
-      path: '/courses'
-      fullPath: '/app/elite/courses'
-      preLoaderRoute: typeof AppEliteCoursesRouteImport
-      parentRoute: typeof AppEliteRoute
+      parentRoute: typeof AppRoute
     }
   }
 }
 
-interface AppEliteRouteChildren {
-  AppEliteCoursesRoute: typeof AppEliteCoursesRoute
-  AppEliteExercisesRoute: typeof AppEliteExercisesRoute
-  AppEliteGospelRoute: typeof AppEliteGospelRoute
-  AppEliteProductsRoute: typeof AppEliteProductsRoute
-  AppElitePurchaseRoute: typeof AppElitePurchaseRoute
-  AppEliteStoresRoute: typeof AppEliteStoresRoute
-  AppEliteIndexRoute: typeof AppEliteIndexRoute
-}
-
-const AppEliteRouteChildren: AppEliteRouteChildren = {
-  AppEliteCoursesRoute: AppEliteCoursesRoute,
-  AppEliteExercisesRoute: AppEliteExercisesRoute,
-  AppEliteGospelRoute: AppEliteGospelRoute,
-  AppEliteProductsRoute: AppEliteProductsRoute,
-  AppElitePurchaseRoute: AppElitePurchaseRoute,
-  AppEliteStoresRoute: AppEliteStoresRoute,
-  AppEliteIndexRoute: AppEliteIndexRoute,
-}
-
-const AppEliteRouteWithChildren = AppEliteRoute._addFileChildren(
-  AppEliteRouteChildren,
-)
-
-interface AppRudimentsRouteChildren {
-  AppRudimentsIdRoute: typeof AppRudimentsIdRoute
-}
-
-const AppRudimentsRouteChildren: AppRudimentsRouteChildren = {
-  AppRudimentsIdRoute: AppRudimentsIdRoute,
-}
-
-const AppRudimentsRouteWithChildren = AppRudimentsRoute._addFileChildren(
-  AppRudimentsRouteChildren,
-)
-
 interface AppRouteChildren {
   AppCoordinationRoute: typeof AppCoordinationRoute
-  AppEliteRoute: typeof AppEliteRouteWithChildren
   AppMetronomeRoute: typeof AppMetronomeRoute
   AppNotationRoute: typeof AppNotationRoute
   AppPracticeRoute: typeof AppPracticeRoute
   AppRhythmsRoute: typeof AppRhythmsRoute
-  AppRudimentsRoute: typeof AppRudimentsRouteWithChildren
+  AppSettingsRoute: typeof AppSettingsRoute
   AppSpeedRoute: typeof AppSpeedRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppRudimentsIdRoute: typeof AppRudimentsIdRoute
+  AppRudimentsIndexRoute: typeof AppRudimentsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCoordinationRoute: AppCoordinationRoute,
-  AppEliteRoute: AppEliteRouteWithChildren,
   AppMetronomeRoute: AppMetronomeRoute,
   AppNotationRoute: AppNotationRoute,
   AppPracticeRoute: AppPracticeRoute,
   AppRhythmsRoute: AppRhythmsRoute,
-  AppRudimentsRoute: AppRudimentsRouteWithChildren,
+  AppSettingsRoute: AppSettingsRoute,
   AppSpeedRoute: AppSpeedRoute,
   AppIndexRoute: AppIndexRoute,
+  AppRudimentsIdRoute: AppRudimentsIdRoute,
+  AppRudimentsIndexRoute: AppRudimentsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

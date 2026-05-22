@@ -3,7 +3,7 @@ import { useState } from "react";
 import { RUDIMENTS, RUDIMENT_CATEGORIES } from "@/lib/rudiments";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/app/rudiments")({
+export const Route = createFileRoute("/app/rudiments/")({
   component: RudimentsPage,
 });
 
