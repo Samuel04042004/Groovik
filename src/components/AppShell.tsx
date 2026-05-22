@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 import {
-  LayoutDashboard, Activity, Music2, FileMusic, Hand, Gauge, Target, LogOut, Flame, Zap, Crown,
+  LayoutDashboard, Activity, Music2, FileMusic, Hand, Gauge, Target, LogOut, Flame, Zap, Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ const NAV = [
   { to: "/app/coordination", label: "Coordenação", icon: Hand },
   { to: "/app/speed", label: "Velocidade", icon: Gauge },
   { to: "/app/practice", label: "Prática Livre", icon: Target },
-  { to: "/app/elite", label: "Drum Elite", icon: Crown, vip: true },
+  { to: "/app/settings", label: "Configurações", icon: Settings },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -30,18 +30,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Sidebar / Topbar */}
       <aside className="lg:w-64 lg:min-h-screen lg:border-r border-border bg-card/40 backdrop-blur-xl flex lg:flex-col">
         <div className="p-5 hidden lg:block">
           <Link to="/app" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow-orange">
               <Music2 className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-lg tracking-tight">BatePro</span>
+            <span className="font-display font-bold text-lg tracking-tight">Groovik</span>
           </Link>
         </div>
 
-        {/* Stats */}
         {profile && (
           <div className="hidden lg:block mx-5 mb-4 rounded-xl border border-border bg-background/30 p-3 space-y-2">
             <div className="flex items-center justify-between text-xs">
@@ -65,7 +63,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const active = item.exact
               ? loc.pathname === item.to
               : loc.pathname === item.to || loc.pathname.startsWith(item.to + "/");
-            const isVip = (item as any).vip;
             return (
               <Link
                 key={item.to}
@@ -73,19 +70,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition",
                   active
-                    ? isVip
-                      ? "bg-elite-gold/15 text-elite-gold"
-                      : "bg-primary/15 text-primary"
-                    : isVip
-                      ? "text-elite-gold/80 hover:bg-elite-gold/10 hover:text-elite-gold"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
                 )}
               >
                 <Icon className="w-4 h-4 shrink-0" />
                 <span className="hidden lg:inline">{item.label}</span>
-                {isVip && !profile?.is_premium && (
-                  <span className="hidden lg:inline ml-auto text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-elite-gold/20 text-elite-gold">VIP</span>
-                )}
               </Link>
             );
           })}
@@ -94,7 +84,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="hidden lg:block p-3 border-t border-border">
           <div className="flex items-center gap-2 mb-2 px-2 py-1.5">
             <div className="w-8 h-8 rounded-full bg-gradient-secondary flex items-center justify-center text-xs font-bold">
-              {profile?.display_name?.[0]?.toUpperCase() ?? "B"}
+              {profile?.display_name?.[0]?.toUpperCase() ?? "G"}
             </div>
             <div className="text-xs truncate flex-1">{profile?.display_name ?? "Baterista"}</div>
           </div>
