@@ -6,7 +6,7 @@ export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "Groovik — Aprenda Bateria de Forma Interativa" },
+      { title: "Groovik Beta — Aprenda Bateria de Forma Interativa" },
       { name: "description", content: "Domine os 40 rudimentos oficiais, ritmos e timing através de prática interativa. Sem vídeo-aulas, só prática real." },
     ],
   }),
@@ -20,7 +20,7 @@ function Landing() {
           <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow-orange">
             <Music2 className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-lg">Groovik</span>
+          <span className="font-display font-bold text-lg tracking-tight">Groovik<sup className="ml-1 text-[9px] font-mono uppercase tracking-widest text-primary align-super">Beta</sup></span>
         </div>
         <Link to="/auth">
           <Button variant="ghost" size="sm">Entrar</Button>
@@ -91,7 +91,7 @@ function Landing() {
       </section>
 
       <footer className="px-6 md:px-10 py-8 border-t border-border text-center text-xs text-muted-foreground">
-        © 2026 Groovik · Feito para bateristas
+        © 2026 Groovik Beta · Feito para bateristas
       </footer>
     </div>
   );

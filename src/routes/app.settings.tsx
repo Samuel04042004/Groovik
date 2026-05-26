@@ -17,7 +17,7 @@ const APP_VERSION = "1.0.0";
 
 export const Route = createFileRoute("/app/settings")({
   component: SettingsPage,
-  head: () => ({ meta: [{ title: "Configurações — Groovik" }] }),
+  head: () => ({ meta: [{ title: "Configurações — Groovik Beta" }] }),
 });
 
 function SettingsPage() {
@@ -28,7 +28,7 @@ function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
 
   const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://groovik.app";
-  const shareText = `Estou aprendendo bateria no Groovik 🥁 — vem treinar comigo: ${shareUrl}`;
+  const shareText = `Estou aprendendo bateria no Groovik Beta 🥁 — vem treinar comigo: ${shareUrl}`;
 
   const handleLogout = async () => {
     await signOut();
@@ -51,7 +51,7 @@ function SettingsPage() {
 
   const handleNativeShare = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: "Groovik", text: shareText, url: shareUrl }); } catch {}
+      try { await navigator.share({ title: "Groovik Beta", text: shareText, url: shareUrl }); } catch {}
     } else {
       navigator.clipboard.writeText(shareUrl);
       toast.success("Link copiado!");
@@ -71,7 +71,7 @@ function SettingsPage() {
     <div className="space-y-8 max-w-2xl">
       <header>
         <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Configurações</h1>
-        <p className="text-muted-foreground mt-1">Personalize sua experiência no Groovik.</p>
+        <p className="text-muted-foreground mt-1">Personalize sua experiência no Groovik Beta.</p>
       </header>
 
       {/* Theme */}
@@ -83,7 +83,7 @@ function SettingsPage() {
       </Section>
 
       {/* Share */}
-      <Section title="Compartilhar Groovik" subtitle="Convide amigos bateristas.">
+      <Section title="Compartilhar Groovik Beta" subtitle="Convide amigos bateristas.">
         <div className="rounded-xl border bg-card/40 p-3 font-mono text-xs break-all text-muted-foreground">{shareUrl}</div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
           <Button variant="outline" onClick={handleNativeShare}><Share2 className="w-4 h-4 mr-2" />Compartilhar</Button>
@@ -128,7 +128,7 @@ function SettingsPage() {
       <Section title="Sobre" subtitle="Versão do aplicativo">
         <div className="flex items-center justify-between rounded-xl border bg-card/40 p-4">
           <div>
-            <div className="font-bold">Groovik</div>
+            <div className="font-bold">Groovik <span className="text-[10px] font-mono uppercase tracking-widest text-primary align-middle ml-1">Beta</span></div>
             <div className="text-xs text-muted-foreground">Plataforma interativa de bateria</div>
           </div>
           <div className="font-mono text-sm text-muted-foreground">v{APP_VERSION}</div>

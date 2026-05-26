@@ -15,7 +15,7 @@ export const Route = createFileRoute("/app/rudiments/$id")({
     return { rudiment: r };
   },
   head: ({ loaderData }) => ({
-    meta: [{ title: `${(loaderData as any)?.rudiment?.name ?? "Rudimento"} — Groovik` }],
+    meta: [{ title: `${(loaderData as any)?.rudiment?.name ?? "Rudimento"} — Groovik Beta` }],
   }),
 });
 

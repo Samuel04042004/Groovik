@@ -12,7 +12,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
-      { title: "Groovik — Aprenda Bateria de Forma Interativa" },
+      { title: "Groovik Beta — Aprenda Bateria de Forma Interativa" },
       { name: "description", content: "Plataforma interativa premium para dominar rudimentos, ritmos e timing na bateria." },
       { name: "theme-color", content: "#1a1c24" },
     ],
