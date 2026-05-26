@@ -36,7 +36,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow-orange">
               <Music2 className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-lg tracking-tight">Groovik</span>
+            <span className="font-display font-bold text-lg tracking-tight">Groovik<sup className="ml-1 text-[9px] font-mono uppercase tracking-widest text-primary align-super">Beta</sup></span>
           </Link>
         </div>
 

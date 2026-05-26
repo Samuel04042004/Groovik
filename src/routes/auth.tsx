@@ -11,7 +11,7 @@ import { Music2, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
-  head: () => ({ meta: [{ title: "Entrar — Groovik" }] }),
+  head: () => ({ meta: [{ title: "Entrar — Groovik Beta" }] }),
 });
 
 function AuthPage() {
@@ -79,7 +79,7 @@ function AuthPage() {
           <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow-orange">
             <Music2 className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-xl">Groovik</span>
+          <span className="font-display font-bold text-xl tracking-tight">Groovik<sup className="ml-1 text-[10px] font-mono uppercase tracking-widest text-primary align-super">Beta</sup></span>
         </Link>
 
         <div className="rounded-2xl border border-border bg-card/80 backdrop-blur shadow-card p-7">
