@@ -9,22 +9,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Sun, Moon, LogOut, Trash2, Share2, Copy, MessageCircle, Loader2 } from "lucide-react";
-import { useServerFn } from "@tanstack/react-start";
-import { deleteAccount } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 const APP_VERSION = "1.0.0";
 
 export const Route = createFileRoute("/app/settings")({
   component: SettingsPage,
-  head: () => ({ meta: [{ title: "Configurações — Groovik Beta" }] }),
 });
 
 function SettingsPage() {
   const { profile, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const nav = useNavigate();
-  const callDelete = useServerFn(deleteAccount);
   const [deleting, setDeleting] = useState(false);
 
   const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://groovik.app";
@@ -38,7 +34,8 @@ function SettingsPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await callDelete();
+      const { error } = await supabase.rpc("delete_my_account");
+      if (error) throw error;
       await supabase.auth.signOut();
       toast.success("Conta excluída permanentemente.");
       nav({ to: "/" });
@@ -50,7 +47,7 @@ function SettingsPage() {
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator !== "undefined" && navigator.share) {
       try { await navigator.share({ title: "Groovik Beta", text: shareText, url: shareUrl }); } catch {}
     } else {
       navigator.clipboard.writeText(shareUrl);
@@ -74,7 +71,6 @@ function SettingsPage() {
         <p className="text-muted-foreground mt-1">Personalize sua experiência no Groovik Beta.</p>
       </header>
 
-      {/* Theme */}
       <Section title="Tema" subtitle="Escolha como o Groovik aparece pra você.">
         <div className="grid grid-cols-2 gap-3">
           <ThemeCard active={theme === "dark"} onClick={() => setTheme("dark")} icon={<Moon className="w-5 h-5" />} label="Escuro" desc="Imersivo e premium" />
@@ -82,7 +78,6 @@ function SettingsPage() {
         </div>
       </Section>
 
-      {/* Share */}
       <Section title="Compartilhar Groovik Beta" subtitle="Convide amigos bateristas.">
         <div className="rounded-xl border bg-card/40 p-3 font-mono text-xs break-all text-muted-foreground">{shareUrl}</div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
@@ -92,7 +87,6 @@ function SettingsPage() {
         </div>
       </Section>
 
-      {/* Account */}
       <Section title="Conta" subtitle={profile?.display_name ?? "Sua conta Groovik"}>
         <div className="space-y-2">
           <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
@@ -124,7 +118,6 @@ function SettingsPage() {
         </div>
       </Section>
 
-      {/* About */}
       <Section title="Sobre" subtitle="Versão do aplicativo">
         <div className="flex items-center justify-between rounded-xl border bg-card/40 p-4">
           <div>
