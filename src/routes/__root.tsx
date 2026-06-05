@@ -22,7 +22,12 @@ function NotFoundView() {
         <a href="/" className="inline-block mt-4 text-primary underline">Voltar ao início</a>
       </div>
     </div>
-  ),
+  );
+}
+
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  component: RootComponent,
+  notFoundComponent: NotFoundView,
 });
 
 function RootComponent() {
