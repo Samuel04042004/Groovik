@@ -305,7 +305,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Groovik Beta
             </DialogTitle>
             <DialogDescription className="text-center">
-              Plataforma premium de prática de bateria com metrônomo D/E, rudimentos oficiais, ritmos, coordenação e treino de velocidade.
+              Plataforma gratuita de prática de bateria com metrônomo D/E, rudimentos oficiais, ritmos, coordenação e treino de velocidade.
             </DialogDescription>
           </DialogHeader>
           <div className="text-center text-xs font-mono uppercase tracking-widest text-muted-foreground pt-2">

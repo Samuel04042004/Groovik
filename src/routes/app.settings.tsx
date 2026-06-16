@@ -73,7 +73,7 @@ function SettingsPage() {
 
       <Section title="Tema" subtitle="Escolha como o Groovik aparece pra você.">
         <div className="grid grid-cols-2 gap-3">
-          <ThemeCard active={theme === "dark"} onClick={() => setTheme("dark")} icon={<Moon className="w-5 h-5" />} label="Escuro" desc="Imersivo e premium" />
+          <ThemeCard active={theme === "dark"} onClick={() => setTheme("dark")} icon={<Moon className="w-5 h-5" />} label="Escuro" desc="Imersivo e moderno" />
           <ThemeCard active={theme === "light"} onClick={() => setTheme("light")} icon={<Sun className="w-5 h-5" />} label="Claro" desc="Brilhante e limpo" />
         </div>
       </Section>
