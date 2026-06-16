@@ -8,8 +8,9 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Sun, Moon, LogOut, Trash2, Share2, Copy, MessageCircle, Loader2 } from "lucide-react";
+import { Sun, Moon, LogOut, Trash2, Share2, Copy, MessageCircle, Loader2, Download, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useInstallPrompt } from "@/hooks/use-install-prompt";
 
 const APP_VERSION = "1.0.0";
 
@@ -22,6 +23,19 @@ function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const nav = useNavigate();
   const [deleting, setDeleting] = useState(false);
+  const { canInstall, installed, isIOS, promptInstall } = useInstallPrompt();
+
+  const handleInstall = async () => {
+    const result = await promptInstall();
+    if (result === "accepted") toast.success("App instalado! 🥁");
+    else if (result === "unavailable") {
+      if (isIOS) {
+        toast.info("No iPhone: toque em Compartilhar e depois em 'Adicionar à Tela de Início'.");
+      } else {
+        toast.info("Use o menu do navegador → 'Instalar app' / 'Adicionar à tela inicial'.");
+      }
+    }
+  };
 
   const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://groovik.app";
   const shareText = `Estou aprendendo bateria no Groovik Beta 🥁 — vem treinar comigo: ${shareUrl}`;
@@ -76,6 +90,34 @@ function SettingsPage() {
           <ThemeCard active={theme === "dark"} onClick={() => setTheme("dark")} icon={<Moon className="w-5 h-5" />} label="Escuro" desc="Imersivo e moderno" />
           <ThemeCard active={theme === "light"} onClick={() => setTheme("light")} icon={<Sun className="w-5 h-5" />} label="Claro" desc="Brilhante e limpo" />
         </div>
+      </Section>
+
+      <Section title="Instalar app" subtitle="Tenha o Groovik na tela inicial e use como um app nativo.">
+        {installed ? (
+          <div className="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/10 p-4">
+            <CheckCircle2 className="w-5 h-5 text-primary" />
+            <div>
+              <div className="font-bold">App instalado</div>
+              <div className="text-xs text-muted-foreground">Abrindo em modo standalone.</div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Button
+              onClick={handleInstall}
+              className="w-full bg-gradient-primary text-primary-foreground shadow-glow-orange"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {canInstall ? "Instalar Groovik" : isIOS ? "Como instalar no iPhone" : "Como instalar"}
+            </Button>
+            {isIOS && !canInstall && (
+              <p className="text-xs text-muted-foreground mt-2">
+                No iPhone/iPad: toque em <strong>Compartilhar</strong> no Safari e depois em{" "}
+                <strong>"Adicionar à Tela de Início"</strong>.
+              </p>
+            )}
+          </>
+        )}
       </Section>
 
       <Section title="Compartilhar Groovik Beta" subtitle="Convide amigos bateristas.">
