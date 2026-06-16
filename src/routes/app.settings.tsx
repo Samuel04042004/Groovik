@@ -23,6 +23,19 @@ function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const nav = useNavigate();
   const [deleting, setDeleting] = useState(false);
+  const { canInstall, installed, isIOS, promptInstall } = useInstallPrompt();
+
+  const handleInstall = async () => {
+    const result = await promptInstall();
+    if (result === "accepted") toast.success("App instalado! 🥁");
+    else if (result === "unavailable") {
+      if (isIOS) {
+        toast.info("No iPhone: toque em Compartilhar e depois em 'Adicionar à Tela de Início'.");
+      } else {
+        toast.info("Use o menu do navegador → 'Instalar app' / 'Adicionar à tela inicial'.");
+      }
+    }
+  };
 
   const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://groovik.app";
   const shareText = `Estou aprendendo bateria no Groovik Beta 🥁 — vem treinar comigo: ${shareUrl}`;
