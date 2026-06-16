@@ -8,8 +8,9 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Sun, Moon, LogOut, Trash2, Share2, Copy, MessageCircle, Loader2 } from "lucide-react";
+import { Sun, Moon, LogOut, Trash2, Share2, Copy, MessageCircle, Loader2, Download, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useInstallPrompt } from "@/hooks/use-install-prompt";
 
 const APP_VERSION = "1.0.0";
 
