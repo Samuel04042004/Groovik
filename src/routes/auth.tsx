@@ -65,7 +65,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin + "/auth",
+        redirect_uri: window.location.origin + "/app",
       });
       if (result.error) {
         const msg = result.error.message ?? `Erro ao entrar com ${provider}`;
