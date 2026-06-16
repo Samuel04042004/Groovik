@@ -92,6 +92,34 @@ function SettingsPage() {
         </div>
       </Section>
 
+      <Section title="Instalar app" subtitle="Tenha o Groovik na tela inicial e use como um app nativo.">
+        {installed ? (
+          <div className="flex items-center gap-3 rounded-xl border border-primary/40 bg-primary/10 p-4">
+            <CheckCircle2 className="w-5 h-5 text-primary" />
+            <div>
+              <div className="font-bold">App instalado</div>
+              <div className="text-xs text-muted-foreground">Abrindo em modo standalone.</div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Button
+              onClick={handleInstall}
+              className="w-full bg-gradient-primary text-primary-foreground shadow-glow-orange"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {canInstall ? "Instalar Groovik" : isIOS ? "Como instalar no iPhone" : "Como instalar"}
+            </Button>
+            {isIOS && !canInstall && (
+              <p className="text-xs text-muted-foreground mt-2">
+                No iPhone/iPad: toque em <strong>Compartilhar</strong> no Safari e depois em{" "}
+                <strong>"Adicionar à Tela de Início"</strong>.
+              </p>
+            )}
+          </>
+        )}
+      </Section>
+
       <Section title="Compartilhar Groovik Beta" subtitle="Convide amigos bateristas.">
         <div className="rounded-xl border bg-card/40 p-3 font-mono text-xs break-all text-muted-foreground">{shareUrl}</div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
