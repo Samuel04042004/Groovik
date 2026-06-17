@@ -25,7 +25,9 @@ function AuthPage() {
 
   useEffect(() => {
     if (session && profile) {
-      nav({ to: profile.onboarded ? "/app" : "/onboarding" });
+      const target = profile.onboarded ? "/app" : "/onboarding";
+      console.log("[auth] session ready, redirecting", { current: window.location.pathname, target, onboarded: profile.onboarded });
+      nav({ to: target });
     }
   }, [session, profile, nav]);
 
@@ -37,7 +39,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email, password,
           options: {
-            emailRedirectTo: window.location.origin + "/app",
+            emailRedirectTo: window.location.origin,
             data: { full_name: name },
           },
         });
@@ -46,6 +48,7 @@ function AuthPage() {
       } else if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        console.log("[auth] email login success");
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin + "/reset-password",
