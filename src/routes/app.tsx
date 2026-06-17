@@ -14,6 +14,7 @@ function AppLayout() {
 
   useEffect(() => {
     if (loading) return;
+    console.log("[app] gate", { hasUser: !!user, onboarded: profile?.onboarded, path: window.location.pathname });
     if (!user) {
       nav({ to: "/auth" });
       return;
