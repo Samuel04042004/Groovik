@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+
 import { useAuth } from "@/lib/auth";
 import { Music2, Loader2 } from "lucide-react";
 
@@ -67,12 +67,14 @@ function AuthPage() {
   const handleOAuth = async (provider: "google" | "apple") => {
     setLoading(true);
     try {
-      console.log("[auth] starting OAuth", { provider, redirect_uri: window.location.origin });
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+      const redirectTo = window.location.origin;
+      console.log("[auth] starting OAuth (direct Supabase)", { provider, redirectTo });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo },
       });
-      if (result.error) {
-        const msg = result.error.message ?? `Erro ao entrar com ${provider}`;
+      if (error) {
+        const msg = error.message ?? `Erro ao entrar com ${provider}`;
         if (/provider.*not.*enabled|Unsupported provider/i.test(msg)) {
           toast.error(`O provedor ${provider} ainda não está habilitado no backend.`);
         } else {
@@ -81,7 +83,7 @@ function AuthPage() {
         setLoading(false);
         return;
       }
-      if (result.redirected) return;
+      // Browser will redirect to provider
     } catch (err: any) {
       toast.error(err?.message ?? `Falha no login com ${provider}`);
       setLoading(false);
