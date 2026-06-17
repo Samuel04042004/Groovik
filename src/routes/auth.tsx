@@ -67,8 +67,9 @@ function AuthPage() {
   const handleOAuth = async (provider: "google" | "apple") => {
     setLoading(true);
     try {
+      console.log("[auth] starting OAuth", { provider, redirect_uri: window.location.origin });
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin + "/app",
+        redirect_uri: window.location.origin,
       });
       if (result.error) {
         const msg = result.error.message ?? `Erro ao entrar com ${provider}`;
