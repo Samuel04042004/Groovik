@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Music2, Zap, Target, Activity, Hand, ArrowRight } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   component: Landing,
@@ -13,6 +15,16 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  const { session, profile, loading } = useAuth();
+  const nav = useNavigate();
+  useEffect(() => {
+    if (loading) return;
+    if (session && profile) {
+      const target = profile.onboarded ? "/app" : "/onboarding";
+      console.log("[landing] authenticated user detected, redirecting", { target, path: window.location.pathname });
+      nav({ to: target, replace: true });
+    }
+  }, [loading, session, profile, nav]);
   return (
     <div className="min-h-screen">
       <header className="px-6 md:px-10 py-5 flex items-center justify-between">
