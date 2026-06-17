@@ -25,7 +25,9 @@ function AuthPage() {
 
   useEffect(() => {
     if (session && profile) {
-      nav({ to: profile.onboarded ? "/app" : "/onboarding" });
+      const target = profile.onboarded ? "/app" : "/onboarding";
+      console.log("[auth] session ready, redirecting", { current: window.location.pathname, target, onboarded: profile.onboarded });
+      nav({ to: target });
     }
   }, [session, profile, nav]);
 
@@ -37,7 +39,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email, password,
           options: {
-            emailRedirectTo: window.location.origin + "/app",
+            emailRedirectTo: window.location.origin,
             data: { full_name: name },
           },
         });
@@ -46,6 +48,7 @@ function AuthPage() {
       } else if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        console.log("[auth] email login success");
       } else {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: window.location.origin + "/reset-password",
@@ -64,8 +67,9 @@ function AuthPage() {
   const handleOAuth = async (provider: "google" | "apple") => {
     setLoading(true);
     try {
+      console.log("[auth] starting OAuth", { provider, redirect_uri: window.location.origin });
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin + "/app",
+        redirect_uri: window.location.origin,
       });
       if (result.error) {
         const msg = result.error.message ?? `Erro ao entrar com ${provider}`;
