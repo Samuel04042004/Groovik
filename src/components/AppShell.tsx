@@ -208,7 +208,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           minHeight: "calc(3.5rem + env(safe-area-inset-top))",
         }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
