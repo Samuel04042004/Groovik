@@ -220,7 +220,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[340px] p-0 border-r border-border/60">
+            <SheetContent side="left" className="w-[85vw] max-w-[340px] p-0 border-r border-border/60">
               {SidebarContent}
             </SheetContent>
           </Sheet>
