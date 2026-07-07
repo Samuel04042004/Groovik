@@ -237,7 +237,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {profile && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
               <Flame className="w-3.5 h-3.5 text-primary" />
               <span className="text-xs font-mono font-bold">{profile.streak_days}d</span>
