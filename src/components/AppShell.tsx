@@ -197,9 +197,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col w-full max-w-full overflow-x-hidden">
       {/* Top bar */}
-      <header className="sticky top-0 z-40 h-14 flex items-center justify-between px-4 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+      <header
+        className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-xl gap-2"
+        style={{
+          paddingTop: "env(safe-area-inset-top)",
+          paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
+          paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+          minHeight: "calc(3.5rem + env(safe-area-inset-top))",
+        }}
+      >
         <div className="flex items-center gap-3">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
