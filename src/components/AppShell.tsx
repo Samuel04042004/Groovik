@@ -197,10 +197,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col w-full max-w-full overflow-x-hidden">
       {/* Top bar */}
-      <header className="sticky top-0 z-40 h-14 flex items-center justify-between px-4 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
+      <header
+        className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-xl gap-2"
+        style={{
+          paddingTop: "env(safe-area-inset-top)",
+          paddingLeft: "max(0.75rem, env(safe-area-inset-left))",
+          paddingRight: "max(0.75rem, env(safe-area-inset-right))",
+          minHeight: "calc(3.5rem + env(safe-area-inset-top))",
+        }}
+      >
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
@@ -212,16 +220,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[340px] p-0 border-r border-border/60">
+            <SheetContent side="left" className="w-[85vw] max-w-[340px] p-0 border-r border-border/60">
               {SidebarContent}
             </SheetContent>
           </Sheet>
 
-          <Link to="/app" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-glow-orange">
+          <Link to="/app" className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 shrink-0 rounded-lg bg-gradient-primary flex items-center justify-center shadow-glow-orange">
               <Music2 className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold tracking-tight">
+            <span className="font-display font-bold tracking-tight truncate">
               Groovik
               <sup className="ml-1 text-[9px] font-mono uppercase tracking-widest text-primary align-super">Beta</sup>
             </span>
@@ -229,7 +237,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {profile && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
               <Flame className="w-3.5 h-3.5 text-primary" />
               <span className="text-xs font-mono font-bold">{profile.streak_days}d</span>
@@ -248,8 +256,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
       </header>
 
-      <main className="flex-1 min-w-0">
-        <div className="max-w-6xl mx-auto p-4 md:p-8 animate-fade-up">{children}</div>
+      <main
+        className="flex-1 min-w-0 w-full"
+        style={{
+          paddingLeft: "env(safe-area-inset-left)",
+          paddingRight: "env(safe-area-inset-right)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+        }}
+      >
+        <div className="max-w-6xl mx-auto p-4 md:p-8 animate-fade-up w-full">{children}</div>
       </main>
 
       {/* Share dialog */}
