@@ -225,11 +225,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </SheetContent>
           </Sheet>
 
-          <Link to="/app" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-glow-orange">
+          <Link to="/app" className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 shrink-0 rounded-lg bg-gradient-primary flex items-center justify-center shadow-glow-orange">
               <Music2 className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold tracking-tight">
+            <span className="font-display font-bold tracking-tight truncate">
               Groovik
               <sup className="ml-1 text-[9px] font-mono uppercase tracking-widest text-primary align-super">Beta</sup>
             </span>
