@@ -199,6 +199,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col w-full max-w-full overflow-x-hidden">
+      <GuestMigrationPrompt />
       {/* Top bar */}
       <header
         className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background/80 backdrop-blur-xl gap-2"
