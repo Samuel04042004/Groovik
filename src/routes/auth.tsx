@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useAuth } from "@/lib/auth";
-import { Music2, Loader2, Mail, Lock, User as UserIcon, ArrowLeft } from "lucide-react";
+import { hasGuestData } from "@/lib/guest";
+import { Music2, Loader2, Mail, Lock, User as UserIcon, ArrowLeft, UserPlus } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -42,16 +43,24 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const { session, profile } = useAuth();
+  const { session, profile, isGuest, enterGuestMode } = useAuth();
   const nav = useNavigate();
+  const guestDataExists = typeof window !== "undefined" && hasGuestData();
 
   useEffect(() => {
-    if (session && profile) {
+    // Skip auto-redirect while in guest mode so the user can still sign up from /auth.
+    if (session && profile && !isGuest) {
       const target = profile.onboarded ? "/app" : "/onboarding";
       console.log("[auth] session ready, redirecting", { target, onboarded: profile.onboarded });
       nav({ to: target });
     }
-  }, [session, profile, nav]);
+  }, [session, profile, isGuest, nav]);
+
+  const handleGuest = () => {
+    const p = enterGuestMode();
+    toast.success("Modo visitante ativado!");
+    nav({ to: p.onboarded ? "/app" : "/onboarding" });
+  };
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
