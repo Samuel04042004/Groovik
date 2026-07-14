@@ -49,6 +49,12 @@ function SettingsPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
+      if (isGuest) {
+        clearGuest();
+        toast.success("Progresso local apagado.");
+        nav({ to: "/" });
+        return;
+      }
       const { error } = await supabase.rpc("delete_my_account");
       if (error) throw error;
       await supabase.auth.signOut();
