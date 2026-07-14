@@ -9,22 +9,22 @@ export const Route = createFileRoute("/app")({
 });
 
 function AppLayout() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, isGuest } = useAuth();
   const nav = useNavigate();
 
   useEffect(() => {
     if (loading) return;
-    console.log("[app] gate", { hasUser: !!user, onboarded: profile?.onboarded, path: window.location.pathname });
-    if (!user) {
+    console.log("[app] gate", { hasUser: !!user, isGuest, onboarded: profile?.onboarded, path: window.location.pathname });
+    if (!user && !isGuest) {
       nav({ to: "/auth" });
       return;
     }
     if (profile && !profile.onboarded) {
       nav({ to: "/onboarding" });
     }
-  }, [loading, user, profile, nav]);
+  }, [loading, user, isGuest, profile, nav]);
 
-  if (loading || !user || !profile?.onboarded) {
+  if (loading || (!user && !isGuest) || !profile?.onboarded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
