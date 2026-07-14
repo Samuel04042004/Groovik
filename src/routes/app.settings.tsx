@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 import { Sun, Moon, LogOut, Trash2, Share2, Copy, MessageCircle, Loader2, Download, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { clearGuest } from "@/lib/guest";
 import { useInstallPrompt } from "@/hooks/use-install-prompt";
 
 const APP_VERSION = "1.0.0";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/app/settings")({
 });
 
 function SettingsPage() {
-  const { profile, signOut } = useAuth();
+  const { profile, isGuest, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const nav = useNavigate();
   const [deleting, setDeleting] = useState(false);
@@ -48,6 +49,12 @@ function SettingsPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
+      if (isGuest) {
+        clearGuest();
+        toast.success("Progresso local apagado.");
+        nav({ to: "/" });
+        return;
+      }
       const { error } = await supabase.rpc("delete_my_account");
       if (error) throw error;
       await supabase.auth.signOut();
@@ -129,30 +136,42 @@ function SettingsPage() {
         </div>
       </Section>
 
-      <Section title="Conta" subtitle={profile?.display_name ?? "Sua conta Groovik"}>
+      <Section title="Conta" subtitle={isGuest ? "Modo visitante — dados apenas neste dispositivo" : profile?.display_name ?? "Sua conta Groovik"}>
         <div className="space-y-2">
+          {isGuest && (
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground">
+              Seu progresso está salvo apenas neste navegador. Crie uma conta a qualquer momento para manter tudo em segurança.
+              <div className="mt-2">
+                <Button size="sm" onClick={() => nav({ to: "/auth" })} className="bg-gradient-primary text-primary-foreground">
+                  Criar conta e transferir progresso
+                </Button>
+              </div>
+            </div>
+          )}
           <Button variant="outline" onClick={handleLogout} className="w-full justify-start">
-            <LogOut className="w-4 h-4 mr-2" /> Sair da conta
+            <LogOut className="w-4 h-4 mr-2" /> {isGuest ? "Sair do modo visitante" : "Sair da conta"}
           </Button>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline" className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/10">
-                <Trash2 className="w-4 h-4 mr-2" /> Excluir conta permanentemente
+                <Trash2 className="w-4 h-4 mr-2" /> {isGuest ? "Apagar dados locais" : "Excluir conta permanentemente"}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Essa ação é permanente. Toda a sua progressão, XP, sequência e histórico de prática serão apagados e não poderão ser recuperados.
+                  {isGuest
+                    ? "Todo o progresso local (XP, sequência, favoritos, histórico) será apagado deste dispositivo e não poderá ser recuperado."
+                    : "Essa ação é permanente. Toda a sua progressão, XP, sequência e histórico de prática serão apagados e não poderão ser recuperados."}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                   {deleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                  Excluir tudo
+                  {isGuest ? "Apagar tudo" : "Excluir tudo"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

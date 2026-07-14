@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 import { useAuth } from "@/lib/auth";
-import { Music2, Loader2, Mail, Lock, User as UserIcon, ArrowLeft } from "lucide-react";
+import { hasGuestData } from "@/lib/guest";
+import { Music2, Loader2, Mail, Lock, User as UserIcon, ArrowLeft, UserPlus } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -42,16 +43,24 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const { session, profile } = useAuth();
+  const { session, profile, isGuest, enterGuestMode } = useAuth();
   const nav = useNavigate();
+  const guestDataExists = typeof window !== "undefined" && hasGuestData();
 
   useEffect(() => {
-    if (session && profile) {
+    // Skip auto-redirect while in guest mode so the user can still sign up from /auth.
+    if (session && profile && !isGuest) {
       const target = profile.onboarded ? "/app" : "/onboarding";
       console.log("[auth] session ready, redirecting", { target, onboarded: profile.onboarded });
       nav({ to: target });
     }
-  }, [session, profile, nav]);
+  }, [session, profile, isGuest, nav]);
+
+  const handleGuest = () => {
+    const p = enterGuestMode();
+    toast.success("Modo visitante ativado!");
+    nav({ to: p.onboarded ? "/app" : "/onboarding" });
+  };
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,6 +266,29 @@ function AuthPage() {
               )}
             </Button>
           </form>
+
+          {mode !== "reset" && (
+            <div className="mt-5">
+              <div className="flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted-foreground mb-3">
+                <div className="flex-1 h-px bg-border" /> ou
+                <div className="flex-1 h-px bg-border" />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGuest}
+                disabled={loading}
+                className="w-full h-11 font-medium border-primary/40 hover:bg-primary/10"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                {guestDataExists ? "Continuar como visitante" : "Entrar como visitante"}
+              </Button>
+              <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground text-center">
+                O progresso do visitante fica salvo apenas neste dispositivo.
+                Criar uma conta mantém seu progresso em segurança.
+              </p>
+            </div>
+          )}
 
           <div className="mt-6 pt-5 border-t border-border/60 text-center text-sm text-muted-foreground">
             {mode === "login" && (

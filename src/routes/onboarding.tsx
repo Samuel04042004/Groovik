@@ -18,19 +18,26 @@ const LEVELS = [
 ] as const;
 
 function Onboarding() {
-  const { user, profile, loading, refreshProfile } = useAuth();
+  const { user, profile, loading, isGuest, refreshProfile, updateGuestProfile } = useAuth();
   const nav = useNavigate();
   const [skill, setSkill] = useState<"beginner" | "intermediate" | "advanced" | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) nav({ to: "/auth" });
+    if (loading) return;
+    if (!user && !isGuest) nav({ to: "/auth" });
     if (profile?.onboarded) nav({ to: "/app" });
-  }, [loading, user, profile, nav]);
+  }, [loading, user, isGuest, profile, nav]);
 
   const finish = async () => {
-    if (!skill || !user) return;
+    if (!skill) return;
     setSaving(true);
+    if (isGuest) {
+      updateGuestProfile({ skill_level: skill, onboarded: true });
+      nav({ to: "/app" });
+      return;
+    }
+    if (!user) return;
     const { error } = await supabase
       .from("profiles")
       .update({ skill_level: skill, onboarded: true })
