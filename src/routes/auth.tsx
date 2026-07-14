@@ -267,6 +267,29 @@ function AuthPage() {
             </Button>
           </form>
 
+          {mode !== "reset" && (
+            <div className="mt-5">
+              <div className="flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted-foreground mb-3">
+                <div className="flex-1 h-px bg-border" /> ou
+                <div className="flex-1 h-px bg-border" />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGuest}
+                disabled={loading}
+                className="w-full h-11 font-medium border-primary/40 hover:bg-primary/10"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                {guestDataExists ? "Continuar como visitante" : "Entrar como visitante"}
+              </Button>
+              <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground text-center">
+                O progresso do visitante fica salvo apenas neste dispositivo.
+                Criar uma conta mantém seu progresso em segurança.
+              </p>
+            </div>
+          )}
+
           <div className="mt-6 pt-5 border-t border-border/60 text-center text-sm text-muted-foreground">
             {mode === "login" && (
               <>
