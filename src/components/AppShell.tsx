@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { GuestMigrationPrompt } from "@/components/GuestMigrationPrompt";
 
 const APP_VERSION = "Groovik Beta v1.0";
 
