@@ -10,6 +10,7 @@ import {
 import { toast } from "sonner";
 import { Sun, Moon, LogOut, Trash2, Share2, Copy, MessageCircle, Loader2, Download, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { clearGuest } from "@/lib/guest";
 import { useInstallPrompt } from "@/hooks/use-install-prompt";
 
 const APP_VERSION = "1.0.0";
