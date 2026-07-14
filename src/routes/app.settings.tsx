@@ -20,7 +20,7 @@ export const Route = createFileRoute("/app/settings")({
 });
 
 function SettingsPage() {
-  const { profile, signOut } = useAuth();
+  const { profile, isGuest, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
   const nav = useNavigate();
   const [deleting, setDeleting] = useState(false);
