@@ -50,8 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   const isActive = (item: (typeof NAV)[number]) => {
-    if (item.alias === "progress") return false;
-    return item.exact
+    return (item as any).exact
       ? loc.pathname === item.to
       : loc.pathname === item.to || loc.pathname.startsWith(item.to + "/");
   };
