@@ -22,7 +22,7 @@ function Page() {
           </button>
         ))}
       </div>
-      <Metronome key={sel.id} pattern={sel.pattern} initialBpm={sel.defaultBpm} />
+      <Metronome key={sel.id} pattern={sel.pattern} initialBpm={sel.defaultBpm} exerciseType="practice" exerciseId={sel.id} />
     </div>
   );
 }
