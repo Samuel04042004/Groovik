@@ -137,10 +137,10 @@ export function useProgress() {
       }
       const { data, error } = await supabase.rpc("record_practice_session", {
         p_exercise_type: input.exercise_type,
-        p_exercise_id: input.exercise_id ?? null,
-        p_bpm: input.bpm ?? null,
+        p_exercise_id: input.exercise_id ?? undefined,
+        p_bpm: input.bpm ?? undefined,
         p_duration_seconds: Math.floor(input.duration_seconds),
-        p_accuracy: input.accuracy ?? null,
+        p_accuracy: input.accuracy ?? undefined,
       });
       if (error) {
         console.error("[progress] record failed", error);
