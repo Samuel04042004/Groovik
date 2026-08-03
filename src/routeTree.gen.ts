@@ -18,6 +18,7 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppSpeedRouteImport } from './routes/app.speed'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppRhythmsRouteImport } from './routes/app.rhythms'
+import { Route as AppProgressRouteImport } from './routes/app.progress'
 import { Route as AppPracticeRouteImport } from './routes/app.practice'
 import { Route as AppPadRouteImport } from './routes/app.pad'
 import { Route as AppNotationRouteImport } from './routes/app.notation'
@@ -71,6 +72,11 @@ const AppRhythmsRoute = AppRhythmsRouteImport.update({
   path: '/rhythms',
   getParentRoute: () => AppRoute,
 } as any)
+const AppProgressRoute = AppProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPracticeRoute = AppPracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/app/notation': typeof AppNotationRoute
   '/app/pad': typeof AppPadRoute
   '/app/practice': typeof AppPracticeRoute
+  '/app/progress': typeof AppProgressRoute
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/app/notation': typeof AppNotationRoute
   '/app/pad': typeof AppPadRoute
   '/app/practice': typeof AppPracticeRoute
+  '/app/progress': typeof AppProgressRoute
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/app/notation': typeof AppNotationRoute
   '/app/pad': typeof AppPadRoute
   '/app/practice': typeof AppPracticeRoute
+  '/app/progress': typeof AppProgressRoute
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/app/notation'
     | '/app/pad'
     | '/app/practice'
+    | '/app/progress'
     | '/app/rhythms'
     | '/app/settings'
     | '/app/speed'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/app/notation'
     | '/app/pad'
     | '/app/practice'
+    | '/app/progress'
     | '/app/rhythms'
     | '/app/settings'
     | '/app/speed'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/app/notation'
     | '/app/pad'
     | '/app/practice'
+    | '/app/progress'
     | '/app/rhythms'
     | '/app/settings'
     | '/app/speed'
@@ -290,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRhythmsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/progress': {
+      id: '/app/progress'
+      path: '/progress'
+      fullPath: '/app/progress'
+      preLoaderRoute: typeof AppProgressRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/practice': {
       id: '/app/practice'
       path: '/practice'
@@ -348,6 +367,7 @@ interface AppRouteChildren {
   AppNotationRoute: typeof AppNotationRoute
   AppPadRoute: typeof AppPadRoute
   AppPracticeRoute: typeof AppPracticeRoute
+  AppProgressRoute: typeof AppProgressRoute
   AppRhythmsRoute: typeof AppRhythmsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSpeedRoute: typeof AppSpeedRoute
@@ -362,6 +382,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppNotationRoute: AppNotationRoute,
   AppPadRoute: AppPadRoute,
   AppPracticeRoute: AppPracticeRoute,
+  AppProgressRoute: AppProgressRoute,
   AppRhythmsRoute: AppRhythmsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSpeedRoute: AppSpeedRoute,
