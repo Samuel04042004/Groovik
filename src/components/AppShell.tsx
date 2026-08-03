@@ -22,14 +22,15 @@ const APP_VERSION = "Groovik Beta v1.0";
 
 const NAV = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/app/metronome", label: "Metrônomo", icon: Activity },
+  { to: "/app/metronome", label: "Metrônomo Pro", icon: Activity },
+  { to: "/app/pad", label: "Drum Pad", icon: Target },
   { to: "/app/rudiments", label: "Rudimentos", icon: Music2 },
   { to: "/app/rhythms", label: "Ritmos", icon: Music2 },
   { to: "/app/notation", label: "Notação", icon: FileMusic },
   { to: "/app/coordination", label: "Coordenação", icon: Hand },
   { to: "/app/speed", label: "Velocidade", icon: Gauge },
   { to: "/app/practice", label: "Prática Livre", icon: Target },
-  { to: "/app", label: "Meu Progresso", icon: TrendingUp, exact: true, alias: "progress" },
+  { to: "/app/progress", label: "Meu Progresso", icon: TrendingUp },
   { to: "/app/settings", label: "Configurações", icon: Settings },
 ];
 
@@ -49,8 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   const isActive = (item: (typeof NAV)[number]) => {
-    if (item.alias === "progress") return false;
-    return item.exact
+    return (item as any).exact
       ? loc.pathname === item.to
       : loc.pathname === item.to || loc.pathname.startsWith(item.to + "/");
   };

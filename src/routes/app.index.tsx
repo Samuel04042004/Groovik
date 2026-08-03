@@ -1,25 +1,35 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
-import { Activity, Music2, Hand, Gauge, Target, FileMusic, Flame, Zap, Trophy } from "lucide-react";
+import { useProgress } from "@/lib/progress";
+import {
+  Activity, Music2, Hand, Gauge, Target, FileMusic, Flame, Zap, Trophy, Grid3x3, Timer, TrendingUp,
+} from "lucide-react";
 
 export const Route = createFileRoute("/app/")({
   component: Dashboard,
 });
 
 const MODULES = [
-  { to: "/app/metronome", icon: Activity, title: "Metrônomo D/E", desc: "Pulso preciso com som de caixa" },
+  { to: "/app/metronome", icon: Activity, title: "Metrônomo Pro", desc: "Tap tempo, compassos, subdivisões e acentos" },
+  { to: "/app/pad", icon: Grid3x3, title: "Drum Pad", desc: "Bancos de sons, worship pads e samples próprios" },
   { to: "/app/rudiments", icon: Music2, title: "Rudimentos", desc: "40 rudimentos oficiais com prática" },
   { to: "/app/rhythms", icon: Music2, title: "Ritmos", desc: "Grooves para todos os níveis" },
   { to: "/app/notation", icon: FileMusic, title: "Notação", desc: "Leitura interativa de partitura" },
   { to: "/app/coordination", icon: Hand, title: "Coordenação", desc: "Independência de mãos e pés" },
   { to: "/app/speed", icon: Gauge, title: "Velocidade", desc: "BPM progressivo e resistência" },
   { to: "/app/practice", icon: Target, title: "Prática Livre", desc: "Crie suas rotinas" },
-];
+] as const;
+
+function fmtDuration(sec: number) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? `${h}h ${m}min` : `${m}min`;
+}
 
 function Dashboard() {
   const { profile } = useAuth();
-  const xpToNext = profile?.level ? profile.level * 100 : 100;
-  const pct = profile ? Math.min(100, (profile.xp % 100)) : 0;
+  const { stats } = useProgress();
+  const pct = profile ? Math.min(100, profile.xp % 100) : 0;
 
   return (
     <div className="space-y-8">
@@ -36,17 +46,37 @@ function Dashboard() {
       {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard icon={Zap} label="XP Total" value={profile?.xp ?? 0} />
-        <StatCard icon={Trophy} label="Nível" value={profile?.level ?? 1} />
+        <StatCard icon={Trophy} label="Nível" value={profile?.level ?? 1} hint={`${pct}/100`} />
         <StatCard icon={Flame} label="Sequência" value={`${profile?.streak_days ?? 0}d`} />
-        <StatCard icon={Target} label="Próximo nível" value={`${pct}%`} hint={`/${xpToNext} XP`} />
+        <StatCard icon={Timer} label="Tempo praticado" value={fmtDuration(stats.totalSeconds)} />
       </div>
+
+      <Link
+        to="/app/progress"
+        className="flex items-center justify-between rounded-2xl border border-border bg-card/60 backdrop-blur p-4 hover:border-primary/50 transition"
+      >
+        <div className="flex items-center gap-3">
+          <TrendingUp className="w-5 h-5 text-primary" />
+          <div>
+            <div className="font-bold text-sm">Meu progresso</div>
+            <div className="text-xs text-muted-foreground">
+              {stats.totalSessions} sessão(ões) registrada(s)
+            </div>
+          </div>
+        </div>
+        <span className="text-xs font-mono text-primary">ver tudo →</span>
+      </Link>
 
       {/* Modules */}
       <section>
         <h2 className="font-display text-xl font-bold mb-4">Continue praticando</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {MODULES.map((m) => (
-            <Link key={m.to} to={m.to} className="group rounded-2xl border border-border bg-card/60 backdrop-blur p-5 hover:border-primary/50 hover:shadow-glow-orange transition-all">
+            <Link
+              key={m.to}
+              to={m.to}
+              className="group rounded-2xl border border-border bg-card/60 backdrop-blur p-5 hover:border-primary/50 hover:shadow-glow-orange transition-all"
+            >
               <m.icon className="w-6 h-6 text-primary mb-3 group-hover:scale-110 transition-transform" />
               <div className="font-bold">{m.title}</div>
               <div className="text-xs text-muted-foreground mt-1">{m.desc}</div>

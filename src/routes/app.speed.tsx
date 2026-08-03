@@ -20,7 +20,7 @@ function Page() {
         </div>
         <Slider value={[start]} onValueChange={(v) => setStart(v[0])} min={40} max={200} step={5} />
       </div>
-      <Metronome key={start} pattern={["R","L","R","L"]} initialBpm={start} />
+      <Metronome key={start} pattern={["R","L","R","L"]} initialBpm={start} exerciseType="speed" />
     </div>
   );
 }

@@ -122,6 +122,16 @@ export type Database = {
     }
     Functions: {
       delete_my_account: { Args: never; Returns: undefined }
+      record_practice_session: {
+        Args: {
+          p_accuracy?: number
+          p_bpm?: number
+          p_duration_seconds?: number
+          p_exercise_id?: string
+          p_exercise_type: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
