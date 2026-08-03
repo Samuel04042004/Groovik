@@ -19,6 +19,7 @@ import { Route as AppSpeedRouteImport } from './routes/app.speed'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppRhythmsRouteImport } from './routes/app.rhythms'
 import { Route as AppPracticeRouteImport } from './routes/app.practice'
+import { Route as AppPadRouteImport } from './routes/app.pad'
 import { Route as AppNotationRouteImport } from './routes/app.notation'
 import { Route as AppMetronomeRouteImport } from './routes/app.metronome'
 import { Route as AppCoordinationRouteImport } from './routes/app.coordination'
@@ -75,6 +76,11 @@ const AppPracticeRoute = AppPracticeRouteImport.update({
   path: '/practice',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPadRoute = AppPadRouteImport.update({
+  id: '/pad',
+  path: '/pad',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppNotationRoute = AppNotationRouteImport.update({
   id: '/notation',
   path: '/notation',
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/app/coordination': typeof AppCoordinationRoute
   '/app/metronome': typeof AppMetronomeRoute
   '/app/notation': typeof AppNotationRoute
+  '/app/pad': typeof AppPadRoute
   '/app/practice': typeof AppPracticeRoute
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/app/coordination': typeof AppCoordinationRoute
   '/app/metronome': typeof AppMetronomeRoute
   '/app/notation': typeof AppNotationRoute
+  '/app/pad': typeof AppPadRoute
   '/app/practice': typeof AppPracticeRoute
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
@@ -144,6 +152,7 @@ export interface FileRoutesById {
   '/app/coordination': typeof AppCoordinationRoute
   '/app/metronome': typeof AppMetronomeRoute
   '/app/notation': typeof AppNotationRoute
+  '/app/pad': typeof AppPadRoute
   '/app/practice': typeof AppPracticeRoute
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/app/coordination'
     | '/app/metronome'
     | '/app/notation'
+    | '/app/pad'
     | '/app/practice'
     | '/app/rhythms'
     | '/app/settings'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/app/coordination'
     | '/app/metronome'
     | '/app/notation'
+    | '/app/pad'
     | '/app/practice'
     | '/app/rhythms'
     | '/app/settings'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/app/coordination'
     | '/app/metronome'
     | '/app/notation'
+    | '/app/pad'
     | '/app/practice'
     | '/app/rhythms'
     | '/app/settings'
@@ -285,6 +297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPracticeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/pad': {
+      id: '/app/pad'
+      path: '/pad'
+      fullPath: '/app/pad'
+      preLoaderRoute: typeof AppPadRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/notation': {
       id: '/app/notation'
       path: '/notation'
@@ -327,6 +346,7 @@ interface AppRouteChildren {
   AppCoordinationRoute: typeof AppCoordinationRoute
   AppMetronomeRoute: typeof AppMetronomeRoute
   AppNotationRoute: typeof AppNotationRoute
+  AppPadRoute: typeof AppPadRoute
   AppPracticeRoute: typeof AppPracticeRoute
   AppRhythmsRoute: typeof AppRhythmsRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -340,6 +360,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppCoordinationRoute: AppCoordinationRoute,
   AppMetronomeRoute: AppMetronomeRoute,
   AppNotationRoute: AppNotationRoute,
+  AppPadRoute: AppPadRoute,
   AppPracticeRoute: AppPracticeRoute,
   AppRhythmsRoute: AppRhythmsRoute,
   AppSettingsRoute: AppSettingsRoute,
