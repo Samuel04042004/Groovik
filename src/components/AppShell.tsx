@@ -5,7 +5,7 @@ import { useTheme } from "@/lib/theme";
 import {
   LayoutDashboard, Activity, Music2, FileMusic, Hand, Gauge, Target, LogOut,
   Flame, Zap, Settings, Menu, TrendingUp, Moon, Sun, Share2, Info, Copy,
-  MessageCircle, Send, Facebook, Instagram, Twitter,
+  MessageCircle, Send, Facebook, Instagram, Twitter, Waves,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { GuestMigrationPrompt } from "@/components/GuestMigrationPrompt";
+import { WorshipNowPlaying } from "@/components/worship/WorshipNowPlaying";
 
 const APP_VERSION = "Groovik Beta v1.0";
 
@@ -24,6 +25,7 @@ const NAV = [
   { to: "/app", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/app/metronome", label: "Metrônomo Pro", icon: Activity },
   { to: "/app/pad", label: "Drum Pad", icon: Target },
+  { to: "/app/worship", label: "Worship Pad Pro", icon: Waves },
   { to: "/app/rudiments", label: "Rudimentos", icon: Music2 },
   { to: "/app/rhythms", label: "Ritmos", icon: Music2 },
   { to: "/app/notation", label: "Notação", icon: FileMusic },
@@ -268,6 +270,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <div className="max-w-6xl mx-auto p-4 md:p-8 animate-fade-up w-full">{children}</div>
       </main>
+
+      <WorshipNowPlaying />
+
+
 
       {/* Share dialog */}
       <Dialog open={shareOpen} onOpenChange={setShareOpen}>

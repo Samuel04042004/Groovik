@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppWorshipRouteImport } from './routes/app.worship'
 import { Route as AppSpeedRouteImport } from './routes/app.speed'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppRhythmsRouteImport } from './routes/app.rhythms'
@@ -55,6 +56,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWorshipRoute = AppWorshipRouteImport.update({
+  id: '/worship',
+  path: '/worship',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSpeedRoute = AppSpeedRouteImport.update({
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
+  '/app/worship': typeof AppWorshipRoute
   '/app/': typeof AppIndexRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
   '/app/rudiments/': typeof AppRudimentsIndexRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
+  '/app/worship': typeof AppWorshipRoute
   '/app': typeof AppIndexRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
   '/app/rudiments': typeof AppRudimentsIndexRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/app/rhythms': typeof AppRhythmsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/speed': typeof AppSpeedRoute
+  '/app/worship': typeof AppWorshipRoute
   '/app/': typeof AppIndexRoute
   '/app/rudiments/$id': typeof AppRudimentsIdRoute
   '/app/rudiments/': typeof AppRudimentsIndexRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/app/rhythms'
     | '/app/settings'
     | '/app/speed'
+    | '/app/worship'
     | '/app/'
     | '/app/rudiments/$id'
     | '/app/rudiments/'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/app/rhythms'
     | '/app/settings'
     | '/app/speed'
+    | '/app/worship'
     | '/app'
     | '/app/rudiments/$id'
     | '/app/rudiments'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/app/rhythms'
     | '/app/settings'
     | '/app/speed'
+    | '/app/worship'
     | '/app/'
     | '/app/rudiments/$id'
     | '/app/rudiments/'
@@ -279,6 +291,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/worship': {
+      id: '/app/worship'
+      path: '/worship'
+      fullPath: '/app/worship'
+      preLoaderRoute: typeof AppWorshipRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/speed': {
@@ -371,6 +390,7 @@ interface AppRouteChildren {
   AppRhythmsRoute: typeof AppRhythmsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppSpeedRoute: typeof AppSpeedRoute
+  AppWorshipRoute: typeof AppWorshipRoute
   AppIndexRoute: typeof AppIndexRoute
   AppRudimentsIdRoute: typeof AppRudimentsIdRoute
   AppRudimentsIndexRoute: typeof AppRudimentsIndexRoute
@@ -386,6 +406,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppRhythmsRoute: AppRhythmsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppSpeedRoute: AppSpeedRoute,
+  AppWorshipRoute: AppWorshipRoute,
   AppIndexRoute: AppIndexRoute,
   AppRudimentsIdRoute: AppRudimentsIdRoute,
   AppRudimentsIndexRoute: AppRudimentsIndexRoute,
