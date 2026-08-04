@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 import { useProgress } from "@/lib/progress";
 import {
-  Activity, Music2, Hand, Gauge, Target, FileMusic, Flame, Zap, Trophy, Grid3x3, Timer, TrendingUp,
+  Activity, Music2, Hand, Waves, Gauge, Target, FileMusic, Flame, Zap, Trophy, Grid3x3, Timer, TrendingUp,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app/")({
@@ -12,6 +12,7 @@ export const Route = createFileRoute("/app/")({
 const MODULES = [
   { to: "/app/metronome", icon: Activity, title: "Metrônomo Pro", desc: "Tap tempo, compassos, subdivisões e acentos" },
   { to: "/app/pad", icon: Grid3x3, title: "Drum Pad", desc: "Bancos de sons, worship pads e samples próprios" },
+  { to: "/app/worship", icon: Waves, title: "Worship Pad Pro", desc: "Pads ambientes profissionais para culto ao vivo" },
   { to: "/app/rudiments", icon: Music2, title: "Rudimentos", desc: "40 rudimentos oficiais com prática" },
   { to: "/app/rhythms", icon: Music2, title: "Ritmos", desc: "Grooves para todos os níveis" },
   { to: "/app/notation", icon: FileMusic, title: "Notação", desc: "Leitura interativa de partitura" },
