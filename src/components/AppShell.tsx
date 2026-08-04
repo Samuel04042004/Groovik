@@ -271,6 +271,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="max-w-6xl mx-auto p-4 md:p-8 animate-fade-up w-full">{children}</div>
       </main>
 
+      <WorshipNowPlaying />
+
+
+
       {/* Share dialog */}
       <Dialog open={shareOpen} onOpenChange={setShareOpen}>
         <DialogContent className="sm:max-w-md">
