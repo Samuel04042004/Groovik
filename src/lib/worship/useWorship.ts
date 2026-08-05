@@ -1,5 +1,5 @@
-// React binding for Worship Pad Pro. Owns library state (built-in + user pads,
-// kits, favorites, settings) and mirrors engine playback state into React.
+// React binding for Worship Pad Pro. Owns library state (user pads, kits,
+// favorites, settings) and mirrors engine playback state into React.
 
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import * as engine from "./engine";
@@ -19,27 +19,38 @@ import {
   saveSettings,
   saveUserPads,
 } from "./store";
-import type { Favorites, Kit, KitBundleV1, PadDefinition, WorshipSettings } from "./types";
-
-export function useEngineState() {
-  const active = useSyncExternalStore(
-    (cb) => engine.subscribe(cb),
-    () => activeSnapshotKey,
-    () => "",
-  );
-  // `active` is only a version token; read the real list on each render.
-  void active;
-  return engine.getActive();
-}
+import type {
+  ChordId,
+  Favorites,
+  Kit,
+  KitBundleV1,
+  PadDefinition,
+  WorshipSettings,
+} from "./types";
 
 let activeSnapshotKey = "";
 engine.subscribe(() => {
   activeSnapshotKey = engine
     .getActive()
-    .map((a) => `${a.padId}:${a.midi}`)
+    .map((a) => `${a.padId}:${a.chordId ?? ""}`)
     .sort()
     .join("|");
 });
+
+export function useEngineState() {
+  useSyncExternalStore(
+    (cb) => engine.subscribe(cb),
+    () => activeSnapshotKey,
+    () => "",
+  );
+  return engine.getActive();
+}
+
+/** Legacy kits stored a flat `padIds` list; normalize them to a chord map. */
+function normalizeKit(kit: Kit & { padIds?: string[] }): Kit {
+  const { padIds, ...rest } = kit;
+  return { ...rest, chordMap: kit.chordMap ?? {} };
+}
 
 export function useWorship() {
   const [userPads, setUserPads] = useState<PadDefinition[]>([]);
@@ -50,7 +61,7 @@ export function useWorship() {
 
   useEffect(() => {
     setUserPads(loadUserPads());
-    setKits(loadKits());
+    setKits(loadKits().map(normalizeKit));
     setFavorites(loadFavorites());
     setSettings(loadSettings());
   }, []);
@@ -85,10 +96,17 @@ export function useWorship() {
     async (padId: string) => {
       engine.stopPad(padId, 0.3);
       const pad = userPads.find((p) => p.id === padId);
-      if (pad?.source.kind === "sample") await deleteBlob(pad.source.blobId).catch(() => void 0);
+      if (pad) await deleteBlob(pad.source.blobId).catch(() => void 0);
       if (pad?.imageBlobId) await deleteBlob(pad.imageBlobId).catch(() => void 0);
       persistPads(userPads.filter((p) => p.id !== padId));
-      persistKits(kits.map((k) => ({ ...k, padIds: k.padIds.filter((id) => id !== padId) })));
+      persistKits(
+        kits.map((k) => ({
+          ...k,
+          chordMap: Object.fromEntries(
+            Object.entries(k.chordMap).filter(([, id]) => id !== padId),
+          ),
+        })),
+      );
     },
     [userPads, kits, persistPads, persistKits],
   );
@@ -105,6 +123,22 @@ export function useWorship() {
 
   const removeKit = useCallback(
     (kitId: string) => persistKits(kits.filter((k) => k.id !== kitId)),
+    [kits, persistKits],
+  );
+
+  /** Assigns (or clears, with `padId = null`) the pad used by a chord slot. */
+  const assignChord = useCallback(
+    (kitId: string, chord: ChordId, padId: string | null) => {
+      persistKits(
+        kits.map((k) => {
+          if (k.id !== kitId) return k;
+          const chordMap = { ...k.chordMap };
+          if (padId) chordMap[chord] = padId;
+          else delete chordMap[chord];
+          return { ...k, chordMap };
+        }),
+      );
+    },
     [kits, persistKits],
   );
 
@@ -148,7 +182,7 @@ export function useWorship() {
 
   const exportKit = useCallback(
     async (kit: Kit) => {
-      const kitPads = kit.padIds
+      const kitPads = [...new Set(Object.values(kit.chordMap))]
         .map((id) => pads.find((p) => p.id === id))
         .filter((p): p is PadDefinition => !!p);
       const blobs: Record<string, string> = {};
@@ -156,7 +190,7 @@ export function useWorship() {
       if (kit.coverBlobId) ids.add(kit.coverBlobId);
       kitPads.forEach((p) => {
         if (p.imageBlobId) ids.add(p.imageBlobId);
-        if (p.source.kind === "sample") ids.add(p.source.blobId);
+        ids.add(p.source.blobId);
       });
       for (const id of ids) {
         const entry = await getBlob(id);
@@ -198,8 +232,12 @@ export function useWorship() {
         else merged.push(p);
       });
       persistPads(merged);
-      const kit: Kit = { ...bundle.kit, id: bundle.kit.id };
-      persistKits(kits.some((k) => k.id === kit.id) ? kits.map((k) => (k.id === kit.id ? kit : k)) : [...kits, kit]);
+      const kit = normalizeKit(bundle.kit as Kit);
+      persistKits(
+        kits.some((k) => k.id === kit.id)
+          ? kits.map((k) => (k.id === kit.id ? kit : k))
+          : [...kits, kit],
+      );
       return kit;
     },
     [userPads, kits, persistPads, persistKits],
@@ -216,6 +254,7 @@ export function useWorship() {
     removePad,
     upsertKit,
     removeKit,
+    assignChord,
     toggleFavPad,
     toggleFavKit,
     updateSettings,

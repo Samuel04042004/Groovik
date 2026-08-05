@@ -1,8 +1,11 @@
-// Create / edit dialog for custom Worship pads: metadata, artwork, audio
-// source (import or microphone), trim + normalize + loop points, preview,
-// and the full per-pad FX chain.
+// Pad editor — create/edit a sampled worship pad.
+// Audio can only come from a real file (MP3/WAV/OGG) or a microphone
+// recording. There is no synthesis option by design.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,105 +14,99 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Mic, Music, Play, Square, Upload, Wand2 } from "lucide-react";
 import { toast } from "sonner";
-import { Mic, Play, Square, Upload, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import * as engine from "@/lib/worship/engine";
+import { putBlob } from "@/lib/worship/store";
+import { decodeFile, encodeWav, normalizeBuffer, trimBuffer, waveformPeaks } from "@/lib/worship/audio-edit";
+import { PAD_COLORS, PAD_ICONS } from "@/lib/worship/library";
 import {
   CATEGORY_LABELS, DEFAULT_FX, PAD_CATEGORIES,
   type PadCategory, type PadDefinition, type PadFx,
 } from "@/lib/worship/types";
-import { BUILTIN_PADS } from "@/lib/worship/library";
-import { decodeFile, encodeWav, normalizeBuffer, trimBuffer, waveformPeaks } from "@/lib/worship/audio-edit";
-import { putBlob } from "@/lib/worship/store";
-import * as engine from "@/lib/worship/engine";
-
-const COLORS = ["#e8862f", "#4c8fd6", "#d9a441", "#8f7fd6", "#6fb5a0", "#d2685a", "#9aa7b8", "#5a5f7a"];
-const ICONS = ["Sparkles", "Waves", "Music4", "Church", "Star", "Moon", "Wind", "Feather", "Piano", "Flame"];
 
 type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  editing: PadDefinition | null;
+  pad: PadDefinition | null;
   onSave: (pad: PadDefinition) => void;
 };
 
 function blankPad(): PadDefinition {
   return {
-    id: `pad-${crypto.randomUUID()}`,
+    id: crypto.randomUUID(),
     name: "",
     description: "",
     category: "worship",
     tags: [],
-    color: COLORS[0],
-    icon: "Sparkles",
+    color: PAD_COLORS[0],
+    icon: "Waves",
     loopMode: "loop",
     fx: { ...DEFAULT_FX },
-    source: { kind: "synth", recipe: (BUILTIN_PADS[0].source as any).recipe },
+    source: { kind: "sample", blobId: "", loopStart: 0, loopEnd: 0, trimStart: 0, trimEnd: 0 },
     builtIn: false,
     createdAt: new Date().toISOString(),
   };
 }
 
-export function PadEditor({ open, onOpenChange, editing, onSave }: Props) {
-  const [pad, setPad] = useState<PadDefinition>(blankPad());
-  const [tagText, setTagText] = useState("");
-  const [buffer, setBuffer] = useState<AudioBuffer | null>(null);
+export function PadEditor({ open, onOpenChange, pad, onSave }: Props) {
+  const [draft, setDraft] = useState<PadDefinition>(blankPad());
   const [peaks, setPeaks] = useState<number[]>([]);
-  const [trim, setTrim] = useState<[number, number]>([0, 0]);
-  const [loopPts, setLoopPts] = useState<[number, number]>([0, 0]);
-  const [normalize, setNormalize] = useState(true);
+  const [duration, setDuration] = useState(0);
   const [recording, setRecording] = useState(false);
   const [previewing, setPreviewing] = useState(false);
-  const [pendingAudio, setPendingAudio] = useState<ArrayBuffer | null>(null);
-  const [baseSynth, setBaseSynth] = useState(BUILTIN_PADS[0].id);
   const fileRef = useRef<HTMLInputElement>(null);
-  const imgRef = useRef<HTMLInputElement>(null);
-  const recRef = useRef<MediaRecorder | null>(null);
+  const imageRef = useRef<HTMLInputElement>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
 
   useEffect(() => {
     if (!open) return;
-    setPad(editing ? { ...editing } : blankPad());
-    setTagText(editing?.tags.join(", ") ?? "");
-    setBuffer(null);
+    const next = pad ? structuredClone(pad) : blankPad();
+    setDraft(next);
     setPeaks([]);
-    setPendingAudio(null);
-  }, [open, editing]);
+    setDuration(0);
+    if (next.source.blobId) {
+      const cached = engine.getCachedBuffer(next.source.blobId);
+      if (cached) {
+        setPeaks(waveformPeaks(cached));
+        setDuration(cached.duration);
+      }
+    }
+  }, [open, pad]);
 
-  const loadAudio = useCallback(async (data: ArrayBuffer) => {
+  const patchFx = (patch: Partial<PadFx>) =>
+    setDraft((d) => ({ ...d, fx: { ...d.fx, ...patch } }));
+
+  async function ingestAudio(data: ArrayBuffer, type: string, name: string) {
     try {
       const buf = await decodeFile(data);
-      setBuffer(buf);
+      const blobId = crypto.randomUUID();
+      await putBlob({ id: blobId, type, name, data });
+      await engine.decodeAndCache(blobId, data);
       setPeaks(waveformPeaks(buf));
-      setTrim([0, buf.duration]);
-      setLoopPts([0, buf.duration]);
-      setPendingAudio(data);
+      setDuration(buf.duration);
+      setDraft((d) => ({
+        ...d,
+        name: d.name || name.replace(/\.[^.]+$/, ""),
+        source: { kind: "sample", blobId, loopStart: 0, loopEnd: buf.duration, trimStart: 0, trimEnd: buf.duration },
+      }));
+      toast.success("Áudio carregado");
     } catch {
-      toast.error("Não foi possível ler este áudio.");
+      toast.error("Não foi possível ler este arquivo de áudio");
     }
-  }, []);
+  }
 
-  const onFile = async (f: File | undefined) => {
-    if (!f) return;
-    await loadAudio(await f.arrayBuffer());
-    setPad((p) => ({ ...p, name: p.name || f.name.replace(/\.[^.]+$/, "") }));
-  };
+  async function onPickFile(file?: File) {
+    if (!file) return;
+    await ingestAudio(await file.arrayBuffer(), file.type || "audio/wav", file.name);
+  }
 
-  const onImage = async (f: File | undefined) => {
-    if (!f) return;
-    const id = `img-${crypto.randomUUID()}`;
-    await putBlob({ id, type: f.type, name: f.name, data: await f.arrayBuffer() });
-    setPad((p) => ({ ...p, imageBlobId: id }));
-    toast.success("Imagem definida.");
-  };
-
-  const toggleRecord = async () => {
+  async function toggleRecording() {
     if (recording) {
-      recRef.current?.stop();
+      recorderRef.current?.stop();
       setRecording(false);
       return;
     }
@@ -120,283 +117,315 @@ export function PadEditor({ open, onOpenChange, editing, onSave }: Props) {
       rec.ondataavailable = (e) => chunks.push(e.data);
       rec.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
-        const blob = new Blob(chunks, { type: rec.mimeType });
-        await loadAudio(await blob.arrayBuffer());
+        const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+        await ingestAudio(await blob.arrayBuffer(), blob.type, "Gravação");
       };
+      recorderRef.current = rec;
       rec.start();
-      recRef.current = rec;
       setRecording(true);
     } catch {
-      toast.error("Microfone indisponível.");
+      toast.error("Microfone indisponível");
     }
-  };
+  }
 
-  const buildPreviewPad = (): PadDefinition => pad;
+  /** Destructively bakes trim + normalization into a new WAV blob. */
+  async function applyEdits(normalize: boolean) {
+    if (!draft.source.blobId) return;
+    const cached = engine.getCachedBuffer(draft.source.blobId);
+    if (!cached) return toast.error("Carregue o áudio novamente");
+    let buf = trimBuffer(cached, draft.source.trimStart, draft.source.trimEnd || cached.duration);
+    if (normalize) buf = normalizeBuffer(buf);
+    const wav = encodeWav(buf);
+    const blobId = crypto.randomUUID();
+    await putBlob({ id: blobId, type: "audio/wav", name: `${draft.name || "pad"}.wav`, data: wav });
+    await engine.decodeAndCache(blobId, wav);
+    setPeaks(waveformPeaks(buf));
+    setDuration(buf.duration);
+    setDraft((d) => ({
+      ...d,
+      source: { kind: "sample", blobId, loopStart: 0, loopEnd: buf.duration, trimStart: 0, trimEnd: buf.duration },
+    }));
+    toast.success(normalize ? "Áudio cortado e normalizado" : "Áudio cortado");
+  }
 
-  const preview = async () => {
+  async function onPickImage(file?: File) {
+    if (!file) return;
+    const id = crypto.randomUUID();
+    await putBlob({ id, type: file.type, name: file.name, data: await file.arrayBuffer() });
+    setDraft((d) => ({ ...d, imageBlobId: id }));
+  }
+
+  function togglePreview() {
     if (previewing) {
-      engine.stopPad(pad.id, 0.4);
+      engine.stopVoice(draft.id, null, 0.4);
       setPreviewing(false);
       return;
     }
-    let target = buildPreviewPad();
-    if (pendingAudio && buffer) {
-      const blobId = `aud-preview-${pad.id}`;
-      await engine.decodeAndCache(blobId, renderProcessed(buffer));
-      target = {
-        ...pad,
-        source: {
-          kind: "sample",
-          blobId,
-          trimStart: 0,
-          trimEnd: 0,
-          loopStart: Math.max(0, loopPts[0] - trim[0]),
-          loopEnd: Math.max(0, loopPts[1] - trim[0]),
-        },
-      };
-    }
+    if (!draft.source.blobId) return toast.error("Importe um áudio primeiro");
+    void engine.playPad(draft, { label: `Prévia — ${draft.name || "Pad"}` });
     setPreviewing(true);
-    await engine.playNote(target, 60);
-    window.setTimeout(() => {
-      engine.stopPad(target.id, 0.6);
-      setPreviewing(false);
-    }, 6000);
-  };
+  }
 
-  const renderProcessed = (buf: AudioBuffer): ArrayBuffer => {
-    let out = trimBuffer(buf, trim[0], trim[1]);
-    if (normalize) out = normalizeBuffer(out);
-    return encodeWav(out);
-  };
-
-  const save = async () => {
-    if (!pad.name.trim()) {
-      toast.error("Dê um nome ao pad.");
-      return;
-    }
-    let source = pad.source;
-    if (pendingAudio && buffer) {
-      const blobId = `aud-${crypto.randomUUID()}`;
-      const data = renderProcessed(buffer);
-      await putBlob({ id: blobId, type: "audio/wav", name: pad.name, data });
-      await engine.decodeAndCache(blobId, data);
-      source = {
-        kind: "sample",
-        blobId,
-        trimStart: 0,
-        trimEnd: 0,
-        loopStart: Math.max(0, loopPts[0] - trim[0]),
-        loopEnd: Math.max(0, loopPts[1] - trim[0]),
-      };
-    } else if (source.kind === "synth") {
-      const base = BUILTIN_PADS.find((b) => b.id === baseSynth);
-      if (base && base.source.kind === "synth") source = { kind: "synth", recipe: base.source.recipe };
-    }
-    engine.stopPad(pad.id, 0.2);
-    onSave({
-      ...pad,
-      source,
-      tags: tagText.split(",").map((t) => t.trim()).filter(Boolean),
-    });
+  function save() {
+    if (!draft.name.trim()) return toast.error("Dê um nome ao pad");
+    if (!draft.source.blobId) return toast.error("Um pad precisa de um áudio real");
+    engine.stopVoice(draft.id, null, 0.3);
+    onSave({ ...draft, name: draft.name.trim() });
     onOpenChange(false);
-    toast.success("Pad salvo.");
-  };
-
-  const setFx = (patch: Partial<PadFx>) => setPad((p) => ({ ...p, fx: { ...p.fx, ...patch } }));
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editing ? "Editar pad" : "Novo pad"}</DialogTitle>
+          <DialogTitle>{pad ? "Editar pad" : "Novo pad"}</DialogTitle>
           <DialogDescription>
-            Crie pads ilimitados com som próprio, arte e processamento independente.
+            Somente áudio real: importe MP3, WAV ou OGG, ou grave pelo microfone.
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="info">
-          <TabsList className="grid grid-cols-3 w-full">
-            <TabsTrigger value="info">Identidade</TabsTrigger>
+        <Tabs defaultValue="audio">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="audio">Áudio</TabsTrigger>
-            <TabsTrigger value="fx">Efeitos</TabsTrigger>
+            <TabsTrigger value="info">Identidade</TabsTrigger>
+            <TabsTrigger value="fx">Mixagem</TabsTrigger>
           </TabsList>
 
+          {/* ------------------------------ audio ----------------------------- */}
+          <TabsContent value="audio" className="space-y-4 pt-4">
+            <div className="flex flex-wrap gap-2">
+              <input
+                ref={fileRef}
+                type="file"
+                accept="audio/mpeg,audio/wav,audio/ogg,audio/*"
+                className="hidden"
+                onChange={(e) => void onPickFile(e.target.files?.[0])}
+              />
+              <Button variant="outline" size="lg" onClick={() => fileRef.current?.click()}>
+                <Upload className="w-4 h-4 mr-2" /> Importar áudio
+              </Button>
+              <Button
+                variant={recording ? "destructive" : "outline"}
+                size="lg"
+                onClick={() => void toggleRecording()}
+              >
+                <Mic className="w-4 h-4 mr-2" /> {recording ? "Parar gravação" : "Gravar"}
+              </Button>
+              <Button variant="secondary" size="lg" onClick={togglePreview}>
+                {previewing ? <Square className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                {previewing ? "Parar" : "Ouvir"}
+              </Button>
+            </div>
+
+            <div className="rounded-xl border border-border bg-muted/30 p-3">
+              {peaks.length > 0 ? (
+                <div className="flex h-20 items-center gap-[1px]">
+                  {peaks.map((p, i) => (
+                    <span
+                      key={i}
+                      className="flex-1 rounded-sm bg-primary/70"
+                      style={{ height: `${Math.max(3, p * 100)}%` }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex h-20 items-center justify-center text-xs text-muted-foreground">
+                  <Music className="w-4 h-4 mr-2" />
+                  {draft.source.blobId ? "Áudio salvo neste pad" : "Nenhum áudio carregado"}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl border border-border p-3">
+              <div>
+                <div className="text-sm font-semibold">Modo loop</div>
+                <div className="text-xs text-muted-foreground">
+                  Loop contínuo até você parar, ou one-shot.
+                </div>
+              </div>
+              <Switch
+                checked={draft.loopMode === "loop"}
+                onCheckedChange={(v) => setDraft((d) => ({ ...d, loopMode: v ? "loop" : "one-shot" }))}
+              />
+            </div>
+
+            {duration > 0 && (
+              <div className="space-y-4 rounded-xl border border-border p-3">
+                <SliderRow
+                  label="Início do corte"
+                  value={draft.source.trimStart}
+                  min={0}
+                  max={duration}
+                  step={0.01}
+                  suffix="s"
+                  onChange={(v) =>
+                    setDraft((d) => ({ ...d, source: { ...d.source, trimStart: v } }))
+                  }
+                />
+                <SliderRow
+                  label="Fim do corte"
+                  value={draft.source.trimEnd || duration}
+                  min={0}
+                  max={duration}
+                  step={0.01}
+                  suffix="s"
+                  onChange={(v) => setDraft((d) => ({ ...d, source: { ...d.source, trimEnd: v } }))}
+                />
+                <SliderRow
+                  label="Loop início"
+                  value={draft.source.loopStart}
+                  min={0}
+                  max={duration}
+                  step={0.01}
+                  suffix="s"
+                  onChange={(v) => setDraft((d) => ({ ...d, source: { ...d.source, loopStart: v } }))}
+                />
+                <SliderRow
+                  label="Loop fim"
+                  value={draft.source.loopEnd || duration}
+                  min={0}
+                  max={duration}
+                  step={0.01}
+                  suffix="s"
+                  onChange={(v) => setDraft((d) => ({ ...d, source: { ...d.source, loopEnd: v } }))}
+                />
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => void applyEdits(false)}>
+                    Aplicar corte
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => void applyEdits(true)}>
+                    <Wand2 className="w-4 h-4 mr-2" /> Cortar e normalizar
+                  </Button>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ------------------------------ info ------------------------------ */}
           <TabsContent value="info" className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label>Nome</Label>
-              <Input value={pad.name} onChange={(e) => setPad({ ...pad, name: e.target.value })} placeholder="Ex.: Pad Domingo Manhã" />
+              <Input
+                value={draft.name}
+                onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+                placeholder="Ex.: Ambiente Adoração"
+              />
             </div>
             <div className="space-y-2">
               <Label>Descrição</Label>
-              <Textarea value={pad.description} onChange={(e) => setPad({ ...pad, description: e.target.value })} rows={2} />
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Categoria</Label>
-                <Select value={pad.category} onValueChange={(v) => setPad({ ...pad, category: v as PadCategory })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {PAD_CATEGORIES.map((c) => (
-                      <SelectItem key={c} value={c}>{CATEGORY_LABELS[c]}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Ícone</Label>
-                <Select value={pad.icon} onValueChange={(v) => setPad({ ...pad, icon: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {ICONS.map((i) => <SelectItem key={i} value={i}>{i}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Textarea
+                value={draft.description}
+                onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
+                rows={2}
+              />
             </div>
             <div className="space-y-2">
-              <Label>Tags (separadas por vírgula)</Label>
-              <Input value={tagText} onChange={(e) => setTagText(e.target.value)} placeholder="worship, domingo, suave" />
+              <Label>Categoria</Label>
+              <Select
+                value={draft.category}
+                onValueChange={(v) => setDraft((d) => ({ ...d, category: v as PadCategory }))}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAD_CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>{CATEGORY_LABELS[c]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Cor de fundo</Label>
               <div className="flex flex-wrap gap-2">
-                {COLORS.map((c) => (
+                {PAD_COLORS.map((c) => (
                   <button
                     key={c}
-                    onClick={() => setPad({ ...pad, color: c })}
+                    onClick={() => setDraft((d) => ({ ...d, color: c }))}
+                    className={cn(
+                      "h-9 w-9 rounded-lg border-2",
+                      draft.color === c ? "border-foreground" : "border-transparent",
+                    )}
                     style={{ background: c }}
-                    className={cn("w-8 h-8 rounded-full border-2", pad.color === c ? "border-foreground" : "border-transparent")}
                     aria-label={`Cor ${c}`}
                   />
                 ))}
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Imagem personalizada</Label>
-              <div className="flex items-center gap-2">
-                <Button type="button" variant="outline" onClick={() => imgRef.current?.click()}>
-                  <Upload className="w-4 h-4 mr-2" /> Escolher imagem
-                </Button>
-                {pad.imageBlobId && <span className="text-xs text-muted-foreground">Imagem definida</span>}
-                <input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => onImage(e.target.files?.[0])} />
-              </div>
+              <Label>Ícone</Label>
+              <Select value={draft.icon} onValueChange={(v) => setDraft((d) => ({ ...d, icon: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {PAD_ICONS.map((i) => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
-          </TabsContent>
-
-          <TabsContent value="audio" className="space-y-4 pt-4">
-            <div className="flex flex-wrap gap-2">
-              <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
-                <Upload className="w-4 h-4 mr-2" /> Importar MP3 / WAV / OGG
-              </Button>
+            <div className="space-y-2">
+              <Label>Imagem de capa</Label>
               <input
-                ref={fileRef}
+                ref={imageRef}
                 type="file"
-                accept="audio/mpeg,audio/wav,audio/ogg,audio/*"
-                hidden
-                onChange={(e) => onFile(e.target.files?.[0])}
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => void onPickImage(e.target.files?.[0])}
               />
-              <Button type="button" variant={recording ? "destructive" : "outline"} onClick={toggleRecord}>
-                <Mic className="w-4 h-4 mr-2" /> {recording ? "Parar gravação" : "Gravar do microfone"}
+              <Button variant="outline" onClick={() => imageRef.current?.click()}>
+                <Upload className="w-4 h-4 mr-2" />
+                {draft.imageBlobId ? "Trocar imagem" : "Escolher imagem"}
               </Button>
             </div>
-
-            {!buffer && (
-              <div className="space-y-2">
-                <Label>Ou use um motor sintetizado da biblioteca</Label>
-                <Select value={baseSynth} onValueChange={setBaseSynth}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {BUILTIN_PADS.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {buffer && (
-              <div className="space-y-4">
-                <div className="flex h-20 items-center gap-[1px] rounded-xl border border-border bg-background/50 px-2">
-                  {peaks.map((p, i) => (
-                    <span key={i} className="flex-1 bg-primary/70 rounded-sm" style={{ height: `${Math.max(2, p * 100)}%` }} />
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  <Label>Corte (início / fim) — {trim[0].toFixed(2)}s a {trim[1].toFixed(2)}s</Label>
-                  <Slider
-                    min={0}
-                    max={buffer.duration}
-                    step={0.01}
-                    value={trim}
-                    onValueChange={(v) => setTrim([v[0], v[1]] as [number, number])}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Pontos de loop — {loopPts[0].toFixed(2)}s a {loopPts[1].toFixed(2)}s</Label>
-                  <Slider
-                    min={0}
-                    max={buffer.duration}
-                    step={0.01}
-                    value={loopPts}
-                    onValueChange={(v) => setLoopPts([v[0], v[1]] as [number, number])}
-                  />
-                </div>
-                <div className="flex items-center gap-3">
-                  <Switch checked={normalize} onCheckedChange={setNormalize} id="norm" />
-                  <Label htmlFor="norm" className="flex items-center gap-2">
-                    <Wand2 className="w-4 h-4" /> Normalizar volume
-                  </Label>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center gap-3">
-              <Switch
-                id="loopmode"
-                checked={pad.loopMode === "loop"}
-                onCheckedChange={(v) => setPad({ ...pad, loopMode: v ? "loop" : "one-shot" })}
-              />
-              <Label htmlFor="loopmode">Loop infinito (desligado = one shot)</Label>
-            </div>
-
-            <Button type="button" variant="secondary" onClick={preview}>
-              {previewing ? <Square className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
-              {previewing ? "Parar prévia" : "Ouvir prévia"}
-            </Button>
           </TabsContent>
 
+          {/* ------------------------------- fx -------------------------------- */}
           <TabsContent value="fx" className="space-y-4 pt-4">
-            <FxSlider label="Volume" value={pad.fx.volume} min={0} max={1.5} step={0.01} onChange={(v) => setFx({ volume: v })} />
-            <FxSlider label="Pan" value={pad.fx.pan} min={-1} max={1} step={0.01} onChange={(v) => setFx({ pan: v })} />
-            <FxSlider label="Afinação fina (cents)" value={pad.fx.pitch} min={-100} max={100} step={1} onChange={(v) => setFx({ pitch: v })} />
-            <FxSlider label="Transpor (semitons)" value={pad.fx.transpose} min={-24} max={24} step={1} onChange={(v) => setFx({ transpose: v })} />
-            <FxSlider label="EQ graves (dB)" value={pad.fx.eqLow} min={-18} max={18} step={0.5} onChange={(v) => setFx({ eqLow: v })} />
-            <FxSlider label="EQ médios (dB)" value={pad.fx.eqMid} min={-18} max={18} step={0.5} onChange={(v) => setFx({ eqMid: v })} />
-            <FxSlider label="EQ agudos (dB)" value={pad.fx.eqHigh} min={-18} max={18} step={0.5} onChange={(v) => setFx({ eqHigh: v })} />
-            <FxSlider label="Reverb" value={pad.fx.reverb} min={0} max={1} step={0.01} onChange={(v) => setFx({ reverb: v })} />
-            <FxSlider label="Delay" value={pad.fx.delay} min={0} max={1} step={0.01} onChange={(v) => setFx({ delay: v })} />
-            <FxSlider label="Attack (s)" value={pad.fx.attack} min={0.01} max={8} step={0.05} onChange={(v) => setFx({ attack: v })} />
-            <FxSlider label="Release (s)" value={pad.fx.release} min={0.05} max={10} step={0.05} onChange={(v) => setFx({ release: v })} />
-            <FxSlider label="Velocidade de reprodução" value={pad.fx.speed} min={0.25} max={2} step={0.01} onChange={(v) => setFx({ speed: v })} />
+            <SliderRow label="Volume" value={draft.fx.volume} min={0} max={1.5} step={0.01}
+              onChange={(v) => patchFx({ volume: v })} />
+            <SliderRow label="Pan" value={draft.fx.pan} min={-1} max={1} step={0.01}
+              onChange={(v) => patchFx({ pan: v })} />
+            <SliderRow label="Fade in (attack)" value={draft.fx.attack} min={0} max={10} step={0.1} suffix="s"
+              onChange={(v) => patchFx({ attack: v })} />
+            <SliderRow label="Fade out (release)" value={draft.fx.release} min={0.1} max={12} step={0.1} suffix="s"
+              onChange={(v) => patchFx({ release: v })} />
+            <SliderRow label="Transpose" value={draft.fx.transpose} min={-24} max={24} step={1} suffix=" st"
+              onChange={(v) => patchFx({ transpose: v })} />
+            <SliderRow label="Afinação fina" value={draft.fx.pitch} min={-100} max={100} step={1} suffix=" ct"
+              onChange={(v) => patchFx({ pitch: v })} />
+            <SliderRow label="EQ graves" value={draft.fx.eqLow} min={-18} max={18} step={0.5} suffix=" dB"
+              onChange={(v) => patchFx({ eqLow: v })} />
+            <SliderRow label="EQ médios" value={draft.fx.eqMid} min={-18} max={18} step={0.5} suffix=" dB"
+              onChange={(v) => patchFx({ eqMid: v })} />
+            <SliderRow label="EQ agudos" value={draft.fx.eqHigh} min={-18} max={18} step={0.5} suffix=" dB"
+              onChange={(v) => patchFx({ eqHigh: v })} />
+            <SliderRow label="Reverb" value={draft.fx.reverb} min={0} max={1} step={0.01}
+              onChange={(v) => patchFx({ reverb: v })} />
+            <SliderRow label="Delay" value={draft.fx.delay} min={0} max={1} step={0.01}
+              onChange={(v) => patchFx({ delay: v })} />
           </TabsContent>
         </Tabs>
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={save} className="bg-gradient-primary text-primary-foreground">Salvar pad</Button>
+          <Button onClick={save}>Salvar pad</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
 
-function FxSlider({
-  label, value, min, max, step, onChange,
-}: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void }) {
+function SliderRow({
+  label, value, min, max, step, suffix = "", onChange,
+}: {
+  label: string; value: number; min: number; max: number; step: number;
+  suffix?: string; onChange: (v: number) => void;
+}) {
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-sm">
-        <Label>{label}</Label>
-        <span className="font-mono text-xs text-muted-foreground tabular-nums">{value.toFixed(2)}</span>
+      <div className="flex items-center justify-between text-xs">
+        <span className="font-medium">{label}</span>
+        <span className="font-mono text-muted-foreground">
+          {value.toFixed(step < 1 ? 2 : 0)}{suffix}
+        </span>
       </div>
-      <Slider min={min} max={max} step={step} value={[value]} onValueChange={(v) => onChange(v[0])} />
+      <Slider value={[value]} min={min} max={max} step={step} onValueChange={([v]) => onChange(v)} />
     </div>
   );
 }

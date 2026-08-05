@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import * as engine from "@/lib/worship/engine";
 import { Button } from "@/components/ui/button";
 import { Square, Radio } from "lucide-react";
+import { chordIdLabel } from "@/lib/worship/types";
 
 function useActiveCount() {
   return useSyncExternalStore(
@@ -20,7 +21,9 @@ export function WorshipNowPlaying() {
   if (count === 0) return null;
 
   const active = engine.getActive();
-  const notes = active.map((a) => engine.noteLabel(a.midi)).join(" · ");
+  const label = active
+    .map((a) => (a.chordId ? chordIdLabel(a.chordId) : a.label))
+    .join(" · ");
 
   return (
     <div
@@ -28,10 +31,10 @@ export function WorshipNowPlaying() {
       style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}
     >
       <div className="mx-auto flex max-w-5xl items-center gap-3">
-        <Radio className="w-4 h-4 text-primary animate-pulse shrink-0" />
+        <Radio className="w-4 h-4 text-primary shrink-0" />
         <div className="min-w-0 flex-1">
           <div className="text-xs font-bold truncate">Worship Pad tocando</div>
-          <div className="text-[11px] font-mono text-muted-foreground truncate">{notes}</div>
+          <div className="text-[11px] font-mono text-muted-foreground truncate">{label}</div>
         </div>
         <Button asChild variant="ghost" size="sm" className="shrink-0">
           <Link to="/app/worship">Abrir</Link>
