@@ -1,164 +1,149 @@
-// Kit create/edit dialog with cover, color, description and drag-and-drop
-// ordering of the pads it contains.
+// Kit editor — a kit is a full chord map (chord -> sampled pad).
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import { GripVertical, Upload, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { putBlob } from "@/lib/worship/store";
-import type { Kit, PadDefinition } from "@/lib/worship/types";
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Search } from "lucide-react";
 import { toast } from "sonner";
-
-const COLORS = ["#e8862f", "#4c8fd6", "#d9a441", "#8f7fd6", "#6fb5a0", "#d2685a"];
+import { cn } from "@/lib/utils";
+import { PAD_COLORS } from "@/lib/worship/library";
+import {
+  CHORD_QUALITIES, chordId, chordLabel, emptyKit, NOTE_NAMES,
+  type Kit, type PadDefinition,
+} from "@/lib/worship/types";
 
 type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  editing: Kit | null;
+  kit: Kit | null;
   pads: PadDefinition[];
   onSave: (kit: Kit) => void;
 };
 
-function blankKit(): Kit {
-  return {
-    id: `kit-${crypto.randomUUID()}`,
-    name: "",
-    description: "",
-    color: COLORS[0],
-    padIds: [],
-    createdAt: new Date().toISOString(),
-  };
-}
+const NONE = "__none__";
 
-export function KitEditor({ open, onOpenChange, editing, pads, onSave }: Props) {
-  const [kit, setKit] = useState<Kit>(blankKit());
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const imgRef = useRef<HTMLInputElement>(null);
+export function KitEditor({ open, onOpenChange, kit, pads, onSave }: Props) {
+  const [draft, setDraft] = useState<Kit>(emptyKit());
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
-    if (open) setKit(editing ? { ...editing } : blankKit());
-  }, [open, editing]);
+    if (open) setDraft(kit ? structuredClone(kit) : emptyKit());
+  }, [open, kit]);
 
-  const toggle = (padId: string) =>
-    setKit((k) => ({
-      ...k,
-      padIds: k.padIds.includes(padId) ? k.padIds.filter((p) => p !== padId) : [...k.padIds, padId],
-    }));
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return NOTE_NAMES.flatMap((root) =>
+      CHORD_QUALITIES.map((quality) => ({
+        id: chordId(root, quality),
+        label: chordLabel(root, quality),
+      })),
+    ).filter((c) => !q || c.label.toLowerCase().includes(q));
+  }, [query]);
 
-  const reorder = (from: number, to: number) =>
-    setKit((k) => {
-      const list = [...k.padIds];
-      const [moved] = list.splice(from, 1);
-      list.splice(to, 0, moved);
-      return { ...k, padIds: list };
-    });
+  const mappedCount = Object.keys(draft.chordMap).length;
 
-  const onCover = async (f: File | undefined) => {
-    if (!f) return;
-    const id = `img-${crypto.randomUUID()}`;
-    await putBlob({ id, type: f.type, name: f.name, data: await f.arrayBuffer() });
-    setKit((k) => ({ ...k, coverBlobId: id }));
-    toast.success("Capa definida.");
-  };
-
-  const save = () => {
-    if (!kit.name.trim()) {
-      toast.error("Dê um nome ao kit.");
-      return;
-    }
-    onSave(kit);
+  function save() {
+    if (!draft.name.trim()) return toast.error("Dê um nome ao kit");
+    onSave({ ...draft, name: draft.name.trim() });
     onOpenChange(false);
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editing ? "Editar kit" : "Novo kit"}</DialogTitle>
-          <DialogDescription>Organize pads para cada culto, ensaio ou evento.</DialogDescription>
+          <DialogTitle>{kit ? "Editar kit" : "Novo kit"}</DialogTitle>
+          <DialogDescription>
+            Um kit guarda o mapeamento de cada acorde para um pad de áudio.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Nome</Label>
-            <Input value={kit.name} onChange={(e) => setKit({ ...kit, name: e.target.value })} placeholder="Culto de Domingo" />
+            <Label>Nome do kit</Label>
+            <Input
+              value={draft.name}
+              onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+              placeholder="Ex.: Culto de Domingo"
+            />
           </div>
           <div className="space-y-2">
             <Label>Descrição</Label>
-            <Textarea rows={2} value={kit.description} onChange={(e) => setKit({ ...kit, description: e.target.value })} />
+            <Textarea
+              rows={2}
+              value={draft.description}
+              onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
+            />
           </div>
           <div className="space-y-2">
             <Label>Cor</Label>
-            <div className="flex gap-2">
-              {COLORS.map((c) => (
+            <div className="flex flex-wrap gap-2">
+              {PAD_COLORS.map((c) => (
                 <button
                   key={c}
-                  onClick={() => setKit({ ...kit, color: c })}
+                  onClick={() => setDraft((d) => ({ ...d, color: c }))}
+                  className={cn(
+                    "h-9 w-9 rounded-lg border-2",
+                    draft.color === c ? "border-foreground" : "border-transparent",
+                  )}
                   style={{ background: c }}
-                  className={cn("w-8 h-8 rounded-full border-2", kit.color === c ? "border-foreground" : "border-transparent")}
                   aria-label={`Cor ${c}`}
                 />
               ))}
             </div>
           </div>
-          <div className="space-y-2">
-            <Label>Capa</Label>
-            <Button variant="outline" onClick={() => imgRef.current?.click()}>
-              <Upload className="w-4 h-4 mr-2" /> {kit.coverBlobId ? "Trocar capa" : "Escolher capa"}
-            </Button>
-            <input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => onCover(e.target.files?.[0])} />
-          </div>
 
-          <div className="space-y-2">
-            <Label>Pads do kit ({kit.padIds.length}) — arraste para reordenar</Label>
-            <div className="space-y-1">
-              {kit.padIds.map((id, i) => {
-                const pad = pads.find((p) => p.id === id);
-                return (
-                  <div
-                    key={id}
-                    draggable
-                    onDragStart={() => setDragIdx(i)}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={() => {
-                      if (dragIdx !== null && dragIdx !== i) reorder(dragIdx, i);
-                      setDragIdx(null);
-                    }}
-                    className="flex items-center gap-2 rounded-lg border border-border bg-card/60 px-3 py-2 text-sm cursor-grab active:cursor-grabbing"
-                  >
-                    <GripVertical className="w-4 h-4 text-muted-foreground" />
-                    <span className="flex-1 truncate">{pad?.name ?? "Pad removido"}</span>
-                    <button onClick={() => toggle(id)} aria-label="Remover">
-                      <X className="w-4 h-4 text-muted-foreground hover:text-destructive" />
-                    </button>
-                  </div>
-                );
-              })}
-              {kit.padIds.length === 0 && (
-                <p className="text-xs text-muted-foreground">Nenhum pad adicionado ainda.</p>
-              )}
+          <div className="rounded-xl border border-border">
+            <div className="flex items-center gap-2 border-b border-border p-3">
+              <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar acorde (ex.: Cm7)"
+                className="h-9"
+              />
+              <span className="shrink-0 text-xs font-mono text-muted-foreground">
+                {mappedCount}/96
+              </span>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Adicionar pads</Label>
-            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-              {pads
-                .filter((p) => !kit.padIds.includes(p.id))
-                .map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => toggle(p.id)}
-                    className="rounded-lg border border-border bg-background/40 px-3 py-2 text-left text-xs hover:border-primary/60 truncate"
-                  >
-                    {p.name}
-                  </button>
+            <div className="max-h-72 overflow-y-auto divide-y divide-border">
+              {pads.length === 0 && (
+                <div className="p-4 text-sm text-muted-foreground">
+                  Nenhum pad disponível ainda. Importe áudios reais na aba Pads.
+                </div>
+              )}
+              {pads.length > 0 &&
+                rows.map((c) => (
+                  <div key={c.id} className="flex items-center gap-3 p-2">
+                    <span className="w-16 shrink-0 font-mono text-sm font-bold">{c.label}</span>
+                    <Select
+                      value={draft.chordMap[c.id] ?? NONE}
+                      onValueChange={(v) =>
+                        setDraft((d) => {
+                          const chordMap = { ...d.chordMap };
+                          if (v === NONE) delete chordMap[c.id];
+                          else chordMap[c.id] = v;
+                          return { ...d, chordMap };
+                        })
+                      }
+                    >
+                      <SelectTrigger className="h-9"><SelectValue placeholder="Vazio" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={NONE}>Vazio</SelectItem>
+                        {pads.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 ))}
             </div>
           </div>
@@ -166,7 +151,7 @@ export function KitEditor({ open, onOpenChange, editing, pads, onSave }: Props) 
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={save} className="bg-gradient-primary text-primary-foreground">Salvar kit</Button>
+          <Button onClick={save}>Salvar kit</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
