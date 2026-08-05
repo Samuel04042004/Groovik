@@ -1,23 +1,25 @@
 // Worship Pad Pro audio engine.
 //
 // A module-level singleton so playback survives React route changes: pads keep
-// looping while the user navigates the rest of Groovik. The engine exposes a
-// tiny pub/sub API consumed by `useWorshipEngine`, keeping UI and DSP separate
-// and leaving room for MIDI / pedal / remote controllers to drive the same
-// commands later.
+// looping while the user navigates the rest of Groovik.
+//
+// IMPORTANT: this engine only plays real recorded audio (imported files or
+// microphone recordings). There is no oscillator/synthesis path — an unmapped
+// chord stays silent.
 
 import { getBlob } from "./store";
-import type { NoteName, PadDefinition, PadFx } from "./types";
+import type { NoteName, PadDefinition } from "./types";
 import { NOTE_NAMES } from "./types";
 
-export type VoiceKey = string; // `${padId}:${midi}`
+export type VoiceKey = string; // `${padId}` or `${padId}@${chordId}`
 
 type Voice = {
   key: VoiceKey;
   padId: string;
-  midi: number;
+  /** Chord slot that triggered this voice, when played from the chord grid. */
+  chordId: string | null;
+  label: string;
   stop: (releaseTime: number) => void;
-  gain: GainNode;
 };
 
 let ac: AudioContext | null = null;
@@ -35,9 +37,6 @@ let silentEl: HTMLAudioElement | null = null;
 export function midiFromNote(note: NoteName, octave: number) {
   return (octave + 1) * 12 + NOTE_NAMES.indexOf(note);
 }
-export function freqFromMidi(midi: number) {
-  return 440 * Math.pow(2, (midi - 69) / 12);
-}
 export function noteLabel(midi: number) {
   return `${NOTE_NAMES[((midi % 12) + 12) % 12]}${Math.floor(midi / 12) - 1}`;
 }
@@ -51,9 +50,11 @@ export function subscribe(fn: () => void) {
   return () => listeners.delete(fn);
 }
 
+export type ActiveVoice = { padId: string; chordId: string | null; label: string };
+
 /** Snapshot of what is currently sounding, for UI badges and the mini player. */
-export function getActive(): { padId: string; midi: number }[] {
-  return [...voices.values()].map((v) => ({ padId: v.padId, midi: v.midi }));
+export function getActive(): ActiveVoice[] {
+  return [...voices.values()].map((v) => ({ padId: v.padId, chordId: v.chordId, label: v.label }));
 }
 
 function impulse(context: AudioContext, seconds = 3.2, decay = 2.6) {
@@ -82,6 +83,8 @@ export function ensureContext(): AudioContext {
     master.gain.value = 0.9;
     master.connect(comp).connect(ac.destination);
 
+    // Convolution reverb: the impulse response is a decaying noise tail used as
+    // an FX send only. It never generates a musical tone by itself.
     convolver = ac.createConvolver();
     convolver.buffer = impulse(ac);
     reverbBus = ac.createGain();
@@ -118,7 +121,6 @@ export function enableBackgroundPlayback(title: string) {
     silentEl = document.createElement("audio");
     silentEl.loop = true;
     silentEl.setAttribute("playsinline", "");
-    // 1-frame silent wav, keeps the media session registered
     silentEl.src =
       "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA=";
     silentEl.volume = 0.0001;
@@ -167,7 +169,8 @@ export function getCachedBuffer(blobId: string) {
 }
 
 /** Per-pad processing chain: EQ -> pan -> dry/wet sends. */
-function buildChain(context: AudioContext, fxs: PadFx) {
+function buildChain(context: AudioContext, pad: PadDefinition) {
+  const fxs = pad.fx;
   const input = context.createGain();
   input.gain.value = 1;
 
@@ -209,89 +212,27 @@ function buildChain(context: AudioContext, fxs: PadFx) {
   return { input, out };
 }
 
-function startSynthVoice(pad: PadDefinition, midi: number): Voice | null {
-  const context = ensureContext();
-  if (pad.source.kind !== "synth") return null;
-  const r = pad.source.recipe;
-  const fxs = pad.fx;
-  const now = context.currentTime;
-  const freq = freqFromMidi(midi + fxs.transpose);
+type PlayOptions = {
+  /** Chord slot that triggered playback (for UI + voice identity). */
+  chordId?: string | null;
+  /** Human label shown in the now-playing bar. */
+  label?: string;
+  /** Extra semitone shift on top of the pad transpose (auto-pitch). */
+  semitoneShift?: number;
+};
 
-  const { input } = buildChain(context, fxs);
-
-  const env = context.createGain();
-  env.gain.setValueAtTime(0.0001, now);
-  env.gain.exponentialRampToValueAtTime(0.9, now + Math.max(0.01, fxs.attack));
-
-  const filter = context.createBiquadFilter();
-  filter.type = "lowpass";
-  filter.frequency.value = r.cutoff * (freq / 261.63) ** 0.35;
-  filter.Q.value = r.resonance;
-
-  env.connect(filter).connect(input);
-
-  const lfo = context.createOscillator();
-  lfo.frequency.value = r.lfoRate;
-  const lfoGain = context.createGain();
-  lfoGain.gain.value = r.lfoDepth;
-  lfo.connect(lfoGain).connect(filter.frequency);
-  lfo.start(now);
-
-  const oscs: OscillatorNode[] = [];
-  for (const layer of r.layers) {
-    const osc = context.createOscillator();
-    osc.type = layer.type;
-    osc.frequency.value = freq * Math.pow(2, layer.octave);
-    osc.detune.value = layer.detune + fxs.pitch;
-    const g = context.createGain();
-    g.gain.value = layer.gain;
-    osc.connect(g).connect(env);
-    osc.start(now);
-    oscs.push(osc);
-  }
-
-  let noise: AudioBufferSourceNode | null = null;
-  if (r.air > 0) {
-    const len = Math.floor(context.sampleRate * 2);
-    const buf = context.createBuffer(1, len, context.sampleRate);
-    const ch = buf.getChannelData(0);
-    for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
-    noise = context.createBufferSource();
-    noise.buffer = buf;
-    noise.loop = true;
-    const nf = context.createBiquadFilter();
-    nf.type = "bandpass";
-    nf.frequency.value = freq * 4;
-    nf.Q.value = 0.7;
-    const ng = context.createGain();
-    ng.gain.value = r.air * 0.25;
-    noise.connect(nf).connect(ng).connect(env);
-    noise.start(now);
-  }
-
-  const stop = (release: number) => {
-    const t = context.currentTime;
-    env.gain.cancelScheduledValues(t);
-    env.gain.setValueAtTime(Math.max(0.0001, env.gain.value), t);
-    env.gain.exponentialRampToValueAtTime(0.0001, t + Math.max(0.05, release));
-    const at = t + Math.max(0.05, release) + 0.1;
-    oscs.forEach((o) => o.stop(at));
-    noise?.stop(at);
-    lfo.stop(at);
-  };
-
-  return { key: `${pad.id}:${midi}`, padId: pad.id, midi, stop, gain: env };
+function voiceKey(padId: string, chordId?: string | null) {
+  return chordId ? `${padId}@${chordId}` : padId;
 }
 
-async function startSampleVoice(pad: PadDefinition, midi: number): Promise<Voice | null> {
-  if (pad.source.kind !== "sample") return null;
+async function startVoice(pad: PadDefinition, opts: PlayOptions): Promise<Voice | null> {
   const context = ensureContext();
   const buf = await loadBuffer(pad.source.blobId);
   if (!buf) return null;
   const fxs = pad.fx;
   const now = context.currentTime;
 
-  const { input } = buildChain(context, fxs);
+  const { input } = buildChain(context, pad);
   const env = context.createGain();
   env.gain.setValueAtTime(0.0001, now);
   env.gain.exponentialRampToValueAtTime(0.9, now + Math.max(0.01, fxs.attack));
@@ -299,7 +240,7 @@ async function startSampleVoice(pad: PadDefinition, midi: number): Promise<Voice
 
   const src = context.createBufferSource();
   src.buffer = buf;
-  const semis = fxs.transpose + (midi - 60);
+  const semis = fxs.transpose + (opts.semitoneShift ?? 0);
   src.playbackRate.value = fxs.speed * Math.pow(2, semis / 12) * Math.pow(2, fxs.pitch / 1200);
   if (pad.loopMode === "loop") {
     src.loop = true;
@@ -307,10 +248,9 @@ async function startSampleVoice(pad: PadDefinition, midi: number): Promise<Voice
     src.loopEnd = pad.source.loopEnd > 0 ? Math.min(buf.duration, pad.source.loopEnd) : buf.duration;
   }
   src.connect(env);
-  const offset = Math.max(0, pad.source.trimStart);
-  src.start(now, offset);
+  src.start(now, Math.max(0, pad.source.trimStart));
 
-  const key = `${pad.id}:${midi}`;
+  const key = voiceKey(pad.id, opts.chordId);
   if (pad.loopMode === "one-shot") {
     src.onended = () => {
       voices.delete(key);
@@ -331,27 +271,32 @@ async function startSampleVoice(pad: PadDefinition, midi: number): Promise<Voice
     }
   };
 
-  return { key, padId: pad.id, midi, stop, gain: env };
+  return {
+    key,
+    padId: pad.id,
+    chordId: opts.chordId ?? null,
+    label: opts.label ?? pad.name,
+    stop,
+  };
 }
 
-export async function playNote(pad: PadDefinition, midi: number) {
+/** Starts a pad. No-op when that exact voice is already sounding. */
+export async function playPad(pad: PadDefinition, opts: PlayOptions = {}) {
   ensureContext();
-  const key = `${pad.id}:${midi}`;
+  const key = voiceKey(pad.id, opts.chordId);
   if (voices.has(key)) return;
-  const voice =
-    pad.source.kind === "synth" ? startSynthVoice(pad, midi) : await startSampleVoice(pad, midi);
+  const voice = await startVoice(pad, opts);
   if (!voice) return;
   voices.set(key, voice);
-  enableBackgroundPlayback(`${pad.name} — ${noteLabel(midi)}`);
+  enableBackgroundPlayback(voice.label);
   notify();
 }
 
-export function stopNote(padId: string, midi: number, release?: number) {
-  const key = `${padId}:${midi}`;
-  const v = voices.get(key);
+export function stopVoice(padId: string, chordId?: string | null, release?: number) {
+  const v = voices.get(voiceKey(padId, chordId));
   if (!v) return;
-  v.stop(release ?? 1.5);
-  voices.delete(key);
+  v.stop(release ?? 2);
+  voices.delete(v.key);
   if (voices.size === 0) releaseBackgroundPlayback();
   notify();
 }
@@ -378,15 +323,27 @@ export function isPadPlaying(padId: string) {
   return [...voices.values()].some((v) => v.padId === padId);
 }
 
-/** Smooth pad change: fades the previous pad out while the new one fades in. */
-export async function crossfadeTo(pad: PadDefinition, midi: number, seconds: number) {
-  const previous = [...new Set([...voices.values()].map((v) => v.padId))].filter((id) => id !== pad.id);
-  await playNote(pad, midi);
-  previous.forEach((id) => stopPad(id, seconds));
+export function isChordPlaying(chordId: string) {
+  return [...voices.values()].some((v) => v.chordId === chordId);
+}
+
+/**
+ * Smooth chord change: the new pad fades in while every other voice fades out
+ * over `seconds`, so nothing ever restarts abruptly.
+ */
+export async function crossfadeTo(pad: PadDefinition, opts: PlayOptions, seconds: number) {
+  const previous = [...voices.values()].filter((v) => v.key !== voiceKey(pad.id, opts.chordId));
+  await playPad(pad, opts);
+  previous.forEach((v) => {
+    v.stop(seconds);
+    voices.delete(v.key);
+  });
+  if (voices.size === 0) releaseBackgroundPlayback();
+  notify();
 }
 
 /** Preview helper used by the pad editor (auto-stops after `seconds`). */
-export async function previewPad(pad: PadDefinition, midi = 60, seconds = 4) {
-  await playNote(pad, midi);
-  window.setTimeout(() => stopNote(pad.id, midi, 0.6), seconds * 1000);
+export async function previewPad(pad: PadDefinition, seconds = 5) {
+  await playPad(pad, { label: `Prévia — ${pad.name}` });
+  window.setTimeout(() => stopVoice(pad.id, null, 0.8), seconds * 1000);
 }
