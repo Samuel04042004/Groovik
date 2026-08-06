@@ -9,38 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AppWorshipRouteImport } from './routes/app.worship'
-import { Route as AppSpeedRouteImport } from './routes/app.speed'
-import { Route as AppSettingsRouteImport } from './routes/app.settings'
-import { Route as AppRhythmsRouteImport } from './routes/app.rhythms'
-import { Route as AppProgressRouteImport } from './routes/app.progress'
-import { Route as AppPracticeRouteImport } from './routes/app.practice'
-import { Route as AppPadRouteImport } from './routes/app.pad'
-import { Route as AppNotationRouteImport } from './routes/app.notation'
-import { Route as AppMetronomeRouteImport } from './routes/app.metronome'
 import { Route as AppCoordinationRouteImport } from './routes/app.coordination'
+import { Route as AppMetronomeRouteImport } from './routes/app.metronome'
+import { Route as AppNotationRouteImport } from './routes/app.notation'
+import { Route as AppPadRouteImport } from './routes/app.pad'
+import { Route as AppPracticeRouteImport } from './routes/app.practice'
+import { Route as AppProgressRouteImport } from './routes/app.progress'
+import { Route as AppRhythmsRouteImport } from './routes/app.rhythms'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppSpeedRouteImport } from './routes/app.speed'
+import { Route as AppWorshipRouteImport } from './routes/app.worship'
 import { Route as AppRudimentsIndexRouteImport } from './routes/app.rudiments.index'
 import { Route as AppRudimentsIdRouteImport } from './routes/app.rudiments.$id'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -48,9 +38,19 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -58,44 +58,9 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
-const AppWorshipRoute = AppWorshipRouteImport.update({
-  id: '/worship',
-  path: '/worship',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSpeedRoute = AppSpeedRouteImport.update({
-  id: '/speed',
-  path: '/speed',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRhythmsRoute = AppRhythmsRouteImport.update({
-  id: '/rhythms',
-  path: '/rhythms',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProgressRoute = AppProgressRouteImport.update({
-  id: '/progress',
-  path: '/progress',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPracticeRoute = AppPracticeRouteImport.update({
-  id: '/practice',
-  path: '/practice',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPadRoute = AppPadRouteImport.update({
-  id: '/pad',
-  path: '/pad',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppNotationRoute = AppNotationRouteImport.update({
-  id: '/notation',
-  path: '/notation',
+const AppCoordinationRoute = AppCoordinationRouteImport.update({
+  id: '/coordination',
+  path: '/coordination',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMetronomeRoute = AppMetronomeRouteImport.update({
@@ -103,9 +68,44 @@ const AppMetronomeRoute = AppMetronomeRouteImport.update({
   path: '/metronome',
   getParentRoute: () => AppRoute,
 } as any)
-const AppCoordinationRoute = AppCoordinationRouteImport.update({
-  id: '/coordination',
-  path: '/coordination',
+const AppNotationRoute = AppNotationRouteImport.update({
+  id: '/notation',
+  path: '/notation',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPadRoute = AppPadRouteImport.update({
+  id: '/pad',
+  path: '/pad',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPracticeRoute = AppPracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProgressRoute = AppProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRhythmsRoute = AppRhythmsRouteImport.update({
+  id: '/rhythms',
+  path: '/rhythms',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSpeedRoute = AppSpeedRouteImport.update({
+  id: '/speed',
+  path: '/speed',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppWorshipRoute = AppWorshipRouteImport.update({
+  id: '/worship',
+  path: '/worship',
   getParentRoute: () => AppRoute,
 } as any)
 const AppRudimentsIndexRoute = AppRudimentsIndexRouteImport.update({
@@ -251,25 +251,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -279,11 +265,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/': {
@@ -293,60 +293,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/worship': {
-      id: '/app/worship'
-      path: '/worship'
-      fullPath: '/app/worship'
-      preLoaderRoute: typeof AppWorshipRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/speed': {
-      id: '/app/speed'
-      path: '/speed'
-      fullPath: '/app/speed'
-      preLoaderRoute: typeof AppSpeedRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/settings': {
-      id: '/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/rhythms': {
-      id: '/app/rhythms'
-      path: '/rhythms'
-      fullPath: '/app/rhythms'
-      preLoaderRoute: typeof AppRhythmsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/progress': {
-      id: '/app/progress'
-      path: '/progress'
-      fullPath: '/app/progress'
-      preLoaderRoute: typeof AppProgressRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/practice': {
-      id: '/app/practice'
-      path: '/practice'
-      fullPath: '/app/practice'
-      preLoaderRoute: typeof AppPracticeRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/pad': {
-      id: '/app/pad'
-      path: '/pad'
-      fullPath: '/app/pad'
-      preLoaderRoute: typeof AppPadRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/notation': {
-      id: '/app/notation'
-      path: '/notation'
-      fullPath: '/app/notation'
-      preLoaderRoute: typeof AppNotationRouteImport
+    '/app/coordination': {
+      id: '/app/coordination'
+      path: '/coordination'
+      fullPath: '/app/coordination'
+      preLoaderRoute: typeof AppCoordinationRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/metronome': {
@@ -356,11 +307,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMetronomeRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/coordination': {
-      id: '/app/coordination'
-      path: '/coordination'
-      fullPath: '/app/coordination'
-      preLoaderRoute: typeof AppCoordinationRouteImport
+    '/app/notation': {
+      id: '/app/notation'
+      path: '/notation'
+      fullPath: '/app/notation'
+      preLoaderRoute: typeof AppNotationRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/pad': {
+      id: '/app/pad'
+      path: '/pad'
+      fullPath: '/app/pad'
+      preLoaderRoute: typeof AppPadRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/practice': {
+      id: '/app/practice'
+      path: '/practice'
+      fullPath: '/app/practice'
+      preLoaderRoute: typeof AppPracticeRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/progress': {
+      id: '/app/progress'
+      path: '/progress'
+      fullPath: '/app/progress'
+      preLoaderRoute: typeof AppProgressRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/rhythms': {
+      id: '/app/rhythms'
+      path: '/rhythms'
+      fullPath: '/app/rhythms'
+      preLoaderRoute: typeof AppRhythmsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/speed': {
+      id: '/app/speed'
+      path: '/speed'
+      fullPath: '/app/speed'
+      preLoaderRoute: typeof AppSpeedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/worship': {
+      id: '/app/worship'
+      path: '/worship'
+      fullPath: '/app/worship'
+      preLoaderRoute: typeof AppWorshipRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/rudiments/': {
