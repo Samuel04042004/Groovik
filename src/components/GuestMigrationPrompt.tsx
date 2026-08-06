@@ -29,21 +29,17 @@ export function GuestMigrationPrompt() {
     try {
       const g = readGuest();
       const gp = g.profile;
-      // Merge guest progress into the authenticated profile, taking the max
-      // where it makes sense so we never overwrite existing progress with less.
-      const { data: current } = await supabase
-        .from("profiles").select("xp,level,streak_days,skill_level,onboarded")
-        .eq("id", user.id).maybeSingle();
+      // Server-side merge: validated, clamped and only allowed once, on an
+      // account that has no server progress yet.
+      const { error } = await supabase.rpc("migrate_guest_progress", {
+        p_xp: Math.max(0, Math.floor(gp.xp ?? 0)),
+        p_level: Math.max(1, Math.floor(gp.level ?? 1)),
+        p_streak_days: Math.max(0, Math.floor(gp.streak_days ?? 0)),
+        p_skill_level: gp.skill_level ?? undefined,
+        p_onboarded: gp.onboarded ?? undefined,
+      });
+      if (error && !String(error.message).includes("already exists")) throw error;
 
-      const merged = {
-        xp: Math.max(current?.xp ?? 0, gp.xp ?? 0),
-        level: Math.max(current?.level ?? 1, gp.level ?? 1),
-        streak_days: Math.max(current?.streak_days ?? 0, gp.streak_days ?? 0),
-        skill_level: (current?.skill_level ?? gp.skill_level) as any,
-        onboarded: current?.onboarded || gp.onboarded,
-      };
-      const { error } = await supabase.from("profiles").update(merged).eq("id", user.id);
-      if (error) throw error;
 
       clearGuest();
       await refreshProfile();
