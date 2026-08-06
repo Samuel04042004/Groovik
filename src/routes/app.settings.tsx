@@ -55,13 +55,21 @@ function SettingsPage() {
         nav({ to: "/" });
         return;
       }
+      // Refresh the session so the backend sees a recently issued token
+      // (account deletion requires recent authentication).
+      await supabase.auth.refreshSession();
       const { error } = await supabase.rpc("delete_my_account");
       if (error) throw error;
       await supabase.auth.signOut();
       toast.success("Conta excluída permanentemente.");
       nav({ to: "/" });
     } catch (e: any) {
-      toast.error(e?.message ?? "Erro ao excluir conta");
+      const msg = String(e?.message ?? "");
+      toast.error(
+        msg.includes("Reauthentication required")
+          ? "Por segurança, entre novamente antes de excluir a conta."
+          : msg || "Erro ao excluir conta",
+      );
     } finally {
       setDeleting(false);
     }
