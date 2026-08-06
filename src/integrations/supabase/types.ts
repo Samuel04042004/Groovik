@@ -122,6 +122,16 @@ export type Database = {
     }
     Functions: {
       delete_my_account: { Args: never; Returns: undefined }
+      migrate_guest_progress: {
+        Args: {
+          p_level: number
+          p_onboarded?: boolean
+          p_skill_level?: string
+          p_streak_days: number
+          p_xp: number
+        }
+        Returns: Json
+      }
       record_practice_session: {
         Args: {
           p_accuracy?: number
