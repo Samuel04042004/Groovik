@@ -27,6 +27,16 @@ import type {
   PadDefinition,
   WorshipSettings,
 } from "./types";
+import { DEFAULT_FX, emptyKit } from "./types";
+
+type RemoteSampleLike = {
+  id: string;
+  chord_id: string;
+  file_name: string;
+  storage_path: string;
+  created_at: string;
+};
+
 
 let activeSnapshotKey = "";
 engine.subscribe(() => {
@@ -242,6 +252,61 @@ export function useWorship() {
     },
     [userPads, kits, persistPads, persistKits],
   );
+
+  /* --------------------------- cloud samples ----------------------------- */
+
+  /**
+   * Mirrors the cloud sample catalogue into local pads + a kit per pack.
+   * Only references (storage paths) are stored — audio is fetched lazily by the
+   * engine the first time a chord is played.
+   */
+  const syncRemoteSamples = useCallback(
+    (samples: RemoteSampleLike[], packSlug: string, packName: string) => {
+      const cloudPads: PadDefinition[] = samples.map((s) => {
+        const id = `cloud-${s.id}`;
+        const existing = userPads.find((p) => p.id === id);
+        return {
+          id,
+          name: existing?.name ?? s.file_name.replace(/\.[a-z0-9]+$/i, ""),
+          description: existing?.description ?? "Sample na nuvem",
+          category: existing?.category ?? "worship",
+          tags: existing?.tags ?? [],
+          color: existing?.color ?? "#f59e0b",
+          icon: existing?.icon ?? "Waves",
+          loopMode: existing?.loopMode ?? "loop",
+          fx: existing?.fx ?? { ...DEFAULT_FX },
+          source: {
+            kind: "sample" as const,
+            blobId: "",
+            storagePath: s.storage_path,
+            loopStart: 0,
+            loopEnd: 0,
+            trimStart: 0,
+            trimEnd: 0,
+          },
+          builtIn: false,
+          createdAt: existing?.createdAt ?? s.created_at,
+        };
+      });
+
+      const localOnly = userPads.filter((p) => !p.id.startsWith("cloud-"));
+      persistPads([...localOnly, ...cloudPads]);
+
+      const kitId = `cloud-${packSlug}`;
+      const chordMap: Record<string, string> = {};
+      samples.forEach((s) => {
+        chordMap[s.chord_id] = `cloud-${s.id}`;
+      });
+      const existingKit = kits.find((k) => k.id === kitId);
+      const kit: Kit = existingKit
+        ? { ...existingKit, chordMap }
+        : { ...emptyKit(packName), id: kitId, chordMap };
+      persistKits(kits.some((k) => k.id === kitId) ? kits.map((k) => (k.id === kitId ? kit : k)) : [...kits, kit]);
+      return kit;
+    },
+    [userPads, kits, persistPads, persistKits],
+  );
+
 
   return {
     pads,

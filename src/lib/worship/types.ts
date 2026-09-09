@@ -43,40 +43,21 @@ export type NoteName = (typeof NOTE_NAMES)[number];
 
 /* ------------------------------- chords -------------------------------- */
 
-export const CHORD_QUALITIES = [
-  "maj",
-  "min",
-  "maj7",
-  "min7",
-  "dom7",
-  "sus2",
-  "sus4",
-  "add9",
-] as const;
+// Only two qualities exist in Worship Pad Pro: 12 majors + 12 minors = 24 slots.
+export const CHORD_QUALITIES = ["maj", "min"] as const;
 export type ChordQuality = (typeof CHORD_QUALITIES)[number];
 
-/** Suffix appended to the root when rendering a chord label (C, Cm, Cmaj7...). */
+/** Suffix appended to the root when rendering a chord label (C, Cm). */
 export const QUALITY_SUFFIX: Record<ChordQuality, string> = {
   maj: "",
   min: "m",
-  maj7: "maj7",
-  min7: "m7",
-  dom7: "7",
-  sus2: "sus2",
-  sus4: "sus4",
-  add9: "add9",
 };
 
 export const QUALITY_LABELS: Record<ChordQuality, string> = {
   maj: "Maior",
   min: "Menor",
-  maj7: "Maior 7",
-  min7: "Menor 7",
-  dom7: "Dominante 7",
-  sus2: "Sus2",
-  sus4: "Sus4",
-  add9: "Add9",
 };
+
 
 /** Stable identifier for a chord slot, e.g. `C:min7`. */
 export type ChordId = string;
@@ -117,12 +98,20 @@ export type LoopMode = "loop" | "one-shot";
  */
 export type PadAudioSource = {
   kind: "sample";
+  /** Local IndexedDB blob id. Empty when the audio lives in cloud storage. */
   blobId: string;
+  /**
+   * Object path inside the private `worship-pad-samples` bucket. When set, the
+   * audio is fetched lazily (only when the chord is first played) and never
+   * bundled with the app or stored in the database.
+   */
+  storagePath?: string;
   loopStart: number;
   loopEnd: number;
   trimStart: number;
   trimEnd: number;
 };
+
 
 export type PadFx = {
   volume: number;      // 0 - 1.5
