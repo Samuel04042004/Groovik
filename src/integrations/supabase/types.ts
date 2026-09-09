@@ -116,6 +116,54 @@ export type Database = {
         }
         Relationships: []
       }
+      worship_pad_samples: {
+        Row: {
+          chord_id: string
+          content_type: string
+          created_at: string
+          duration_seconds: number | null
+          file_name: string
+          id: string
+          pack_slug: string
+          quality: string
+          root_note: string
+          size_bytes: number
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chord_id: string
+          content_type?: string
+          created_at?: string
+          duration_seconds?: number | null
+          file_name: string
+          id?: string
+          pack_slug?: string
+          quality: string
+          root_note: string
+          size_bytes?: number
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chord_id?: string
+          content_type?: string
+          created_at?: string
+          duration_seconds?: number | null
+          file_name?: string
+          id?: string
+          pack_slug?: string
+          quality?: string
+          root_note?: string
+          size_bytes?: number
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
