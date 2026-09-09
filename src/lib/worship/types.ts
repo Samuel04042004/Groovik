@@ -98,12 +98,20 @@ export type LoopMode = "loop" | "one-shot";
  */
 export type PadAudioSource = {
   kind: "sample";
+  /** Local IndexedDB blob id. Empty when the audio lives in cloud storage. */
   blobId: string;
+  /**
+   * Object path inside the private `worship-pad-samples` bucket. When set, the
+   * audio is fetched lazily (only when the chord is first played) and never
+   * bundled with the app or stored in the database.
+   */
+  storagePath?: string;
   loopStart: number;
   loopEnd: number;
   trimStart: number;
   trimEnd: number;
 };
+
 
 export type PadFx = {
   volume: number;      // 0 - 1.5

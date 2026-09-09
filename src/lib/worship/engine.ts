@@ -147,15 +147,32 @@ function releaseBackgroundPlayback() {
   if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
 }
 
-async function loadBuffer(blobId: string): Promise<AudioBuffer | null> {
-  if (buffers.has(blobId)) return buffers.get(blobId)!;
-  const entry = await getBlob(blobId);
-  if (!entry) return null;
+/**
+ * Resolves audio for a pad: local IndexedDB blob first, otherwise the cloud
+ * sample, downloaded lazily on first playback (never at app startup).
+ */
+async function loadBuffer(source: PadDefinition["source"]): Promise<AudioBuffer | null> {
+  const cacheKey = source.blobId || source.storagePath || "";
+  if (!cacheKey) return null;
+  if (buffers.has(cacheKey)) return buffers.get(cacheKey)!;
+
+  let data: ArrayBuffer | null = null;
+  if (source.blobId) {
+    const entry = await getBlob(source.blobId);
+    data = entry?.data ?? null;
+  }
+  if (!data && source.storagePath) {
+    const { fetchSampleData } = await import("./remote-samples");
+    data = await fetchSampleData(source.storagePath);
+  }
+  if (!data) return null;
+
   const context = ensureContext();
-  const buf = await context.decodeAudioData(entry.data.slice(0));
-  buffers.set(blobId, buf);
+  const buf = await context.decodeAudioData(data.slice(0));
+  buffers.set(cacheKey, buf);
   return buf;
 }
+
 
 export async function decodeAndCache(blobId: string, data: ArrayBuffer) {
   const context = ensureContext();

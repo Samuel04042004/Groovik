@@ -1,12 +1,13 @@
 // Chord grid — the main live performance surface.
+// Exactly 24 slots exist: 12 major chords and 12 minor chords.
 // One touch starts a chord, another touch stops it, and switching chords
 // crossfades instead of restarting.
 
 import * as Icons from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  CHORD_QUALITIES, chordId, chordLabel, QUALITY_LABELS,
-  type ChordId, type NoteName, type PadDefinition,
+  chordId, chordLabel, NOTE_NAMES,
+  type ChordId, type ChordQuality, type NoteName, type PadDefinition,
 } from "@/lib/worship/types";
 
 type Props = {
@@ -16,16 +17,24 @@ type Props = {
   onTrigger: (chord: ChordId) => void;
   onAssign?: (chord: ChordId) => void;
   size?: "normal" | "large";
+  /** Restrict the grid to one quality; omit to show all 24 slots. */
+  quality?: ChordQuality;
 };
 
-export function ChordGrid({ root, padFor, playingChords, onTrigger, onAssign, size = "normal" }: Props) {
+export function ChordGrid({ root, padFor, playingChords, onTrigger, onAssign, size = "normal", quality }: Props) {
+  const qualities: ChordQuality[] = quality ? [quality] : ["maj", "min"];
+  const slots = qualities.flatMap((q) =>
+    NOTE_NAMES.map((n) => ({ q, note: n as NoteName })),
+  );
   return (
-    <div className={cn("grid gap-2 sm:gap-3", size === "large" ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4")}>
-      {CHORD_QUALITIES.map((q) => {
-        const id = chordId(root, q);
+    <div className={cn("grid gap-2 sm:gap-3", size === "large" ? "grid-cols-3 sm:grid-cols-6" : "grid-cols-3 sm:grid-cols-6")}>
+      {slots.map(({ q, note }) => {
+        const id = chordId(note, q);
         const pad = padFor(id);
         const playing = playingChords.includes(id);
         const Icon = pad ? ((Icons as any)[pad.icon] ?? Icons.Waves) : Icons.Plus;
+        const isRoot = note === root;
+
         return (
           <button
             key={id}
