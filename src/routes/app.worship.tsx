@@ -159,12 +159,19 @@ function WorshipPadPro() {
       </header>
 
       <Tabs defaultValue="play">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="play">Tocar</TabsTrigger>
+          <TabsTrigger value="samples">Áudios</TabsTrigger>
           <TabsTrigger value="pads">Pads</TabsTrigger>
           <TabsTrigger value="kits">Kits</TabsTrigger>
           <TabsTrigger value="mix">Ajustes</TabsTrigger>
         </TabsList>
+
+        {/* ---------------------------- samples ----------------------------- */}
+        <TabsContent value="samples" className="space-y-4 pt-4">
+          <SampleImporter onSamplesChange={handleSamples} />
+        </TabsContent>
+
 
         {/* ------------------------------ play ------------------------------ */}
         <TabsContent value="play" className="space-y-4 pt-4">
@@ -326,7 +333,7 @@ function WorshipPadPro() {
               <Search className="absolute left-3 top-1/2 w-4 h-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="h-11 pl-9"
-                placeholder="Buscar kit ou acorde (ex.: Cm7)"
+                placeholder="Buscar kit ou acorde (ex.: Am)"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
