@@ -29,6 +29,9 @@ import { PadEditor } from "@/components/worship/PadEditor";
 import { KitEditor } from "@/components/worship/KitEditor";
 import { ChordGrid } from "@/components/worship/ChordGrid";
 import { PerformanceMode } from "@/components/worship/PerformanceMode";
+import { SampleImporter } from "@/components/worship/SampleImporter";
+import { DEFAULT_PACK_SLUG, type WorshipSample } from "@/lib/worship/remote-samples";
+
 import { useWakeLock, useWorship } from "@/lib/worship/useWorship";
 import * as engine from "@/lib/worship/engine";
 import {
