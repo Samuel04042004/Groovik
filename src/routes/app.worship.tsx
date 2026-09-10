@@ -5,7 +5,7 @@
 // while the user navigates the rest of Groovik.
 
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +45,7 @@ function WorshipPadPro() {
   const {
     pads, kits, favorites, settings, activeVoices,
     upsertPad, removePad, upsertKit, removeKit, assignChord,
-    toggleFavPad, toggleFavKit, updateSettings, exportKit, importKit,
+    toggleFavPad, toggleFavKit, updateSettings, exportKit, importKit, syncRemoteSamples,
   } = useWorship();
 
   const [query, setQuery] = useState("");
@@ -58,7 +58,16 @@ function WorshipPadPro() {
   const [perf, setPerf] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
+  // Keep a stable callback identity so the importer does not refetch in a loop.
+  const syncRef = useRef(syncRemoteSamples);
+  syncRef.current = syncRemoteSamples;
+  const handleSamples = useCallback((samples: WorshipSample[]) => {
+    if (samples.length === 0) return;
+    syncRef.current(samples, DEFAULT_PACK_SLUG, "Worship Pack 01");
+  }, []);
+
   useWakeLock(settings.keepAwake && activeVoices.length > 0);
+
 
   const activeKit = useMemo(
     () => kits.find((k) => k.id === settings.activeKitId) ?? kits[0] ?? null,
