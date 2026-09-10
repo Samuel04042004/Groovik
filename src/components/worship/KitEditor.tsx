@@ -107,12 +107,13 @@ export function KitEditor({ open, onOpenChange, kit, pads, onSave }: Props) {
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar acorde (ex.: Cm7)"
+                placeholder="Buscar acorde (ex.: Am)"
                 className="h-9"
               />
               <span className="shrink-0 text-xs font-mono text-muted-foreground">
-                {mappedCount}/96
+                {mappedCount}/24
               </span>
+
             </div>
             <div className="max-h-72 overflow-y-auto divide-y divide-border">
               {pads.length === 0 && (

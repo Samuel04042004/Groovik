@@ -5,7 +5,7 @@
 // while the user navigates the rest of Groovik.
 
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,9 @@ import { PadEditor } from "@/components/worship/PadEditor";
 import { KitEditor } from "@/components/worship/KitEditor";
 import { ChordGrid } from "@/components/worship/ChordGrid";
 import { PerformanceMode } from "@/components/worship/PerformanceMode";
+import { SampleImporter } from "@/components/worship/SampleImporter";
+import { DEFAULT_PACK_SLUG, type WorshipSample } from "@/lib/worship/remote-samples";
+
 import { useWakeLock, useWorship } from "@/lib/worship/useWorship";
 import * as engine from "@/lib/worship/engine";
 import {
@@ -42,7 +45,7 @@ function WorshipPadPro() {
   const {
     pads, kits, favorites, settings, activeVoices,
     upsertPad, removePad, upsertKit, removeKit, assignChord,
-    toggleFavPad, toggleFavKit, updateSettings, exportKit, importKit,
+    toggleFavPad, toggleFavKit, updateSettings, exportKit, importKit, syncRemoteSamples,
   } = useWorship();
 
   const [query, setQuery] = useState("");
@@ -55,7 +58,16 @@ function WorshipPadPro() {
   const [perf, setPerf] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
+  // Keep a stable callback identity so the importer does not refetch in a loop.
+  const syncRef = useRef(syncRemoteSamples);
+  syncRef.current = syncRemoteSamples;
+  const handleSamples = useCallback((samples: WorshipSample[]) => {
+    if (samples.length === 0) return;
+    syncRef.current(samples, DEFAULT_PACK_SLUG, "Worship Pack 01");
+  }, []);
+
   useWakeLock(settings.keepAwake && activeVoices.length > 0);
+
 
   const activeKit = useMemo(
     () => kits.find((k) => k.id === settings.activeKitId) ?? kits[0] ?? null,
@@ -159,12 +171,19 @@ function WorshipPadPro() {
       </header>
 
       <Tabs defaultValue="play">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="play">Tocar</TabsTrigger>
+          <TabsTrigger value="samples">Áudios</TabsTrigger>
           <TabsTrigger value="pads">Pads</TabsTrigger>
           <TabsTrigger value="kits">Kits</TabsTrigger>
           <TabsTrigger value="mix">Ajustes</TabsTrigger>
         </TabsList>
+
+        {/* ---------------------------- samples ----------------------------- */}
+        <TabsContent value="samples" className="space-y-4 pt-4">
+          <SampleImporter onSamplesChange={handleSamples} />
+        </TabsContent>
+
 
         {/* ------------------------------ play ------------------------------ */}
         <TabsContent value="play" className="space-y-4 pt-4">
@@ -326,7 +345,7 @@ function WorshipPadPro() {
               <Search className="absolute left-3 top-1/2 w-4 h-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="h-11 pl-9"
-                placeholder="Buscar kit ou acorde (ex.: Cm7)"
+                placeholder="Buscar kit ou acorde (ex.: Am)"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />

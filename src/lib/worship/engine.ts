@@ -244,7 +244,7 @@ function voiceKey(padId: string, chordId?: string | null) {
 
 async function startVoice(pad: PadDefinition, opts: PlayOptions): Promise<Voice | null> {
   const context = ensureContext();
-  const buf = await loadBuffer(pad.source.blobId);
+  const buf = await loadBuffer(pad.source);
   if (!buf) return null;
   const fxs = pad.fx;
   const now = context.currentTime;

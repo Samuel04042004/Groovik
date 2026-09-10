@@ -325,6 +325,8 @@ export function useWorship() {
     updateSettings,
     exportKit,
     importKit,
+    syncRemoteSamples,
+
   };
 }
 
