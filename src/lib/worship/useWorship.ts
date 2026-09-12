@@ -343,7 +343,7 @@ export function useWorship() {
   return {
     pads,
     userPads,
-    kits,
+    kits: allKits,
     favorites,
     settings,
     activeVoices,
