@@ -44,7 +44,7 @@ export function parseDefaultPackChord(fileName: string): ChordId | null {
   const tokens = head.split(/[\s()[\]]+/).filter(Boolean);
 
   for (const raw of tokens) {
-    if (STOP_WORDS.has(raw.toUpperCase())) continue;
+    if (raw.toUpperCase() === "PAD" || STOP_WORDS.has(raw)) continue;
     const parsed = parseChordToken(raw);
     if (parsed) return parsed;
   }
