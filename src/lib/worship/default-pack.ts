@@ -22,8 +22,12 @@ const FLAT_TO_SHARP: Record<string, NoteName> = {
   DB: "C#", EB: "D#", GB: "F#", AB: "G#", BB: "A#",
 };
 
-/** Words that are never chords in the Portuguese file names ("PAD em Am"). */
-const STOP_WORDS = new Set(["PAD", "EM", "OU", "DE", "DO", "DA", "E"]);
+/**
+ * Portuguese filler words that are never chords ("PAD em Am").
+ * They are matched lowercase on purpose: chord tokens always start with an
+ * uppercase letter, so "PAD E" stays E major while "PAD em Em" skips "em".
+ */
+const STOP_WORDS = new Set(["pad", "em", "ou", "de", "do", "da", "e"]);
 
 /**
  * Reads the tonality from a default-pack file name.
