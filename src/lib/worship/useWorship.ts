@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import * as engine from "./engine";
 import { BUILTIN_PADS } from "./library";
+import { loadDefaultPack } from "./default-pack";
 import {
   bufferToDataUrl,
   dataUrlToBuffer,
@@ -65,6 +66,8 @@ function normalizeKit(kit: Kit & { padIds?: string[] }): Kit {
 export function useWorship() {
   const [userPads, setUserPads] = useState<PadDefinition[]>([]);
   const [kits, setKits] = useState<Kit[]>([]);
+  const [defaultPads, setDefaultPads] = useState<PadDefinition[]>([]);
+  const [defaultKit, setDefaultKit] = useState<Kit | null>(null);
   const [favorites, setFavorites] = useState<Favorites>({ pads: [], kits: [] });
   const [settings, setSettings] = useState<WorshipSettings>(loadSettings());
   const activeVoices = useEngineState();
@@ -76,11 +79,40 @@ export function useWorship() {
     setSettings(loadSettings());
   }, []);
 
+  // Factory pack: only the catalogue is fetched here; the MP3s themselves are
+  // downloaded lazily by the engine when a chord is first played.
+  useEffect(() => {
+    let cancelled = false;
+    void loadDefaultPack().then((pack) => {
+      if (cancelled || !pack) return;
+      setDefaultPads(pack.pads);
+      setDefaultKit(pack.kit);
+      setSettings((prev) => {
+        if (prev.activeKitId) return prev;
+        const next = { ...prev, activeKitId: pack.kit.id };
+        saveSettings(next);
+        return next;
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     engine.setMasterVolume(settings.masterVolume);
   }, [settings.masterVolume]);
 
-  const pads = useMemo(() => [...BUILTIN_PADS, ...userPads], [userPads]);
+  const pads = useMemo(
+    () => [...BUILTIN_PADS, ...defaultPads, ...userPads],
+    [defaultPads, userPads],
+  );
+
+  /** Local kits plus the read-only factory kit. */
+  const allKits = useMemo(
+    () => (defaultKit ? [defaultKit, ...kits.filter((k) => k.id !== defaultKit.id)] : kits),
+    [defaultKit, kits],
+  );
 
   const persistPads = useCallback((next: PadDefinition[]) => {
     setUserPads(next);
@@ -311,7 +343,7 @@ export function useWorship() {
   return {
     pads,
     userPads,
-    kits,
+    kits: allKits,
     favorites,
     settings,
     activeVoices,

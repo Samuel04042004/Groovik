@@ -297,16 +297,20 @@ async function startVoice(pad: PadDefinition, opts: PlayOptions): Promise<Voice 
   };
 }
 
-/** Starts a pad. No-op when that exact voice is already sounding. */
-export async function playPad(pad: PadDefinition, opts: PlayOptions = {}) {
+/**
+ * Starts a pad. No-op when that exact voice is already sounding.
+ * Returns false when the real audio could not be loaded (never synthesizes).
+ */
+export async function playPad(pad: PadDefinition, opts: PlayOptions = {}): Promise<boolean> {
   ensureContext();
   const key = voiceKey(pad.id, opts.chordId);
-  if (voices.has(key)) return;
+  if (voices.has(key)) return true;
   const voice = await startVoice(pad, opts);
-  if (!voice) return;
+  if (!voice) return false;
   voices.set(key, voice);
   enableBackgroundPlayback(voice.label);
   notify();
+  return true;
 }
 
 export function stopVoice(padId: string, chordId?: string | null, release?: number) {
@@ -350,13 +354,15 @@ export function isChordPlaying(chordId: string) {
  */
 export async function crossfadeTo(pad: PadDefinition, opts: PlayOptions, seconds: number) {
   const previous = [...voices.values()].filter((v) => v.key !== voiceKey(pad.id, opts.chordId));
-  await playPad(pad, opts);
+  const ok = await playPad(pad, opts);
+  if (!ok) return false;
   previous.forEach((v) => {
     v.stop(seconds);
     voices.delete(v.key);
   });
   if (voices.size === 0) releaseBackgroundPlayback();
   notify();
+  return true;
 }
 
 /** Preview helper used by the pad editor (auto-stops after `seconds`). */
