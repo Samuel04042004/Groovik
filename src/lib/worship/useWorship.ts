@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import * as engine from "./engine";
 import { BUILTIN_PADS } from "./library";
+import { loadDefaultPack } from "./default-pack";
 import {
   bufferToDataUrl,
   dataUrlToBuffer,
@@ -102,7 +103,16 @@ export function useWorship() {
     engine.setMasterVolume(settings.masterVolume);
   }, [settings.masterVolume]);
 
-  const pads = useMemo(() => [...BUILTIN_PADS, ...userPads], [userPads]);
+  const pads = useMemo(
+    () => [...BUILTIN_PADS, ...defaultPads, ...userPads],
+    [defaultPads, userPads],
+  );
+
+  /** Local kits plus the read-only factory kit. */
+  const allKits = useMemo(
+    () => (defaultKit ? [defaultKit, ...kits.filter((k) => k.id !== defaultKit.id)] : kits),
+    [defaultKit, kits],
+  );
 
   const persistPads = useCallback((next: PadDefinition[]) => {
     setUserPads(next);
