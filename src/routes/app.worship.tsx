@@ -90,10 +90,13 @@ function WorshipPadPro() {
       return;
     }
     const label = `${chordIdLabel(chord)} — ${pad.name}`;
-    if (settings.crossfade) {
-      await engine.crossfadeTo(pad, { chordId: chord, label }, settings.crossfadeTime);
-    } else {
-      await engine.playPad(pad, { chordId: chord, label });
+    const ok = settings.crossfade
+      ? await engine.crossfadeTo(pad, { chordId: chord, label }, settings.crossfadeTime)
+      : await engine.playPad(pad, { chordId: chord, label });
+    if (!ok) {
+      toast.error(
+        `Não foi possível carregar o áudio de ${chordIdLabel(chord)}. Verifique sua conexão e tente novamente.`,
+      );
     }
   };
 
