@@ -362,6 +362,7 @@ export async function crossfadeTo(pad: PadDefinition, opts: PlayOptions, seconds
   });
   if (voices.size === 0) releaseBackgroundPlayback();
   notify();
+  return true;
 }
 
 /** Preview helper used by the pad editor (auto-stops after `seconds`). */
