@@ -59,7 +59,7 @@ export function ChordGrid({ root, padFor, playingChords, onTrigger, onAssign, si
             </div>
             <div className="mt-2 min-w-0">
               <div className={cn("text-[11px] truncate", pad ? "text-foreground/80" : "text-muted-foreground/70")}>
-                {pad ? pad.name : "Vazio"}
+                {pad ? chordLabel(note, q) : "Vazio"}
               </div>
             </div>
 
