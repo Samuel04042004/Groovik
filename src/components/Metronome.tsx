@@ -183,16 +183,21 @@ export function Metronome({
   }, [playing]);
 
   /* ------------------------- Session saving ------------------------ */
+  // Guards against saving the same run twice (stop button + effect cleanup).
+  const savedRunRef = useRef(true);
+
   const finishSession = useCallback(
     async (seconds: number) => {
       if (!trackProgress || seconds < 5) return;
+      if (savedRunRef.current) return;
+      savedRunRef.current = true;
       const res = await recordSession({
         exercise_type: exerciseType,
         exercise_id: exerciseId,
         bpm,
         duration_seconds: seconds,
       });
-      if (res) {
+      if (res && res.xp_earned > 0) {
         toast.success(`+${res.xp_earned} XP`, {
           description: `Nível ${res.level} · sequência de ${res.streak_days} dia(s)`,
         });
@@ -209,6 +214,7 @@ export function Metronome({
       setElapsed(0);
       void finishSession(seconds);
     } else {
+      savedRunRef.current = false;
       setElapsed(0);
       setPlaying(true);
     }
@@ -224,6 +230,7 @@ export function Metronome({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing]);
+
 
   /* ---------------------------- Tap tempo -------------------------- */
   const tapsRef = useRef<number[]>([]);
