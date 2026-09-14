@@ -94,6 +94,8 @@ export function Metronome({
   const nextNoteTimeRef = useRef(0);
   const stepRef = useRef(0);
   const timerRef = useRef<number | null>(null);
+  // UI timers scheduled ahead of time — cleared on stop/unmount to avoid stale updates.
+  const uiTimersRef = useRef<number[]>([]);
   const startTimeRef = useRef(0);
   const countInStepsRef = useRef(0);
 
@@ -150,7 +152,7 @@ export function Metronome({
         const localCopy = local;
         const countInCopy = inCountIn;
         const absCopy = abs;
-        window.setTimeout(() => {
+        const uiTimer = window.setTimeout(() => {
           if (countInCopy) {
             setCountingIn(Math.max(0, countInStepsRef.current / l.sub - Math.floor(absCopy / l.sub) - 1) + 1);
             setActiveStep(-1);
@@ -160,6 +162,7 @@ export function Metronome({
             onTick?.(localCopy);
           }
         }, Math.max(0, delay));
+        uiTimersRef.current.push(uiTimer);
 
         nextNoteTimeRef.current += stepSeconds;
         stepRef.current++;
@@ -174,6 +177,8 @@ export function Metronome({
 
     return () => {
       if (timerRef.current) window.clearTimeout(timerRef.current);
+      for (const t of uiTimersRef.current) window.clearTimeout(t);
+      uiTimersRef.current = [];
       window.clearInterval(elapsedT);
       setActiveStep(-1);
       setCountingIn(0);
