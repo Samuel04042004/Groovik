@@ -27,6 +27,7 @@ export default defineConfig({
         display: "standalone",
         orientation: "portrait",
         start_url: "/",
+        id: "/",
         scope: "/",
         lang: "pt-BR",
         categories: ["education", "music", "lifestyle"],
@@ -48,6 +49,10 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // New build takes over immediately so no old shell keeps being served.
+        clientsClaim: true,
+        skipWaiting: true,
+        cleanupOutdatedCaches: true,
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/~oauth/, /^\/api/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
