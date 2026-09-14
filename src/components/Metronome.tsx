@@ -124,6 +124,8 @@ export function Metronome({
     const SCHEDULE_AHEAD = 0.15;
 
     const tick = () => {
+      // Drop ids of timers that already fired so the list can't grow unbounded.
+      if (uiTimersRef.current.length > 256) uiTimersRef.current = uiTimersRef.current.slice(-64);
       const l = live.current;
       const stepsPerBar = l.beats * l.sub;
       // Note value scaling: an 8-based signature counts eighth notes.
